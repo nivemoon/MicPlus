@@ -1,0 +1,90 @@
+﻿#pragma code_page(65001)
+
+#include <windows.h>
+#include "resource.h"
+
+IDI_APP_ICON ICON "assets\\micplus.ico"
+IDI_GITHUB_ICON ICON "assets\\github.ico"
+
+1 RT_MANIFEST "micplus.manifest"
+
+IDI_APPICON ICON "assets/icons/app.ico"
+IDI_ICON_ON_LIGHT ICON "assets/icons/on_light.ico"
+IDI_ICON_ON_DARK ICON "assets/icons/on_dark.ico"
+IDI_ICON_OFF_RED ICON "assets/icons/off_red.ico"
+
+1 VERSIONINFO
+FILEVERSION 1,5,0,0
+PRODUCTVERSION 1,5,0,0
+FILEFLAGSMASK 0x3fL
+FILEFLAGS 0x0L
+FILEOS 0x40004L
+FILETYPE 0x1L
+FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName", "Nivemoon Labs"
+            VALUE "FileDescription", "MicPlus"
+            VALUE "FileVersion", "1.5.0.0"
+            VALUE "InternalName", "MicPlus"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Nivemoon Labs"
+            VALUE "OriginalFilename", "MicPlus"
+            VALUE "ProductName", "MicPlus"
+            VALUE "ProductVersion", "1.5.0.0"
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0419, 1252
+    END
+END
+
+IDD_ABOUT DIALOGEX 0, 0, 300, 185
+STYLE DS_CENTER | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "О программе"
+FONT 10, "Segoe UI"
+BEGIN
+    ICON        IDI_APP_ICON,        IDC_ABOUT_APP_ICON,
+                12, 10, 32, 32
+
+    LTEXT       "MicPlus",           IDC_ABOUT_NAME,
+                56, 10, 232, 12
+
+    LTEXT       "Версия 1.5",    IDC_ABOUT_VERSION,
+                56, 28, 232, 12
+
+    LTEXT       "Глобальное управление микрофоном и PTT.",
+                IDC_ABOUT_DESCRIPTION,
+                12, 50, 276, 12
+
+    ICON        IDI_GITHUB_ICON,     IDC_ABOUT_GITHUB,
+                12, 70, 20, 20
+
+    CONTROL     "<A HREF=""https://github.com/nivemoon/micplus"">"
+                "GitHub (исходный код)</A>",
+                IDC_ABOUT_LINK,
+                "SysLink",
+                WS_TABSTOP | WS_VISIBLE,
+                40, 72, 276, 16
+
+    LTEXT       "Ctrl+Alt+Shift+M - скрыть/показать значок в трее.",
+                0,
+                12, 95, 276, 12
+
+    LTEXT       "Ctrl+F9 - вкл/выкл звуки системы.",
+                0,
+                12, 108, 276, 12
+
+    PUSHBUTTON  "Проверить обновления", IDC_ABOUT_CHECKUPDATE,
+                12, 132, 120, 14
+
+    PUSHBUTTON  "Удалить настройки", IDC_ABOUT_RESET,
+                12, 152, 120, 14
+
+    DEFPUSHBUTTON "Закрыть",         IDC_ABOUT_CLOSE,
+                218, 152, 70, 14
+END

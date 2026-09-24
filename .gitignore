@@ -1,0 +1,21 @@
+# Compiled objects
+*.o
+
+# Executables
+*.exe
+
+# Backup files
+*.bak
+
+# Build tools
+mingw32-make
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
