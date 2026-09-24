@@ -16,13 +16,18 @@
 
 ## Установка
 
+### 📥 Прямые ссылки (v1.5)
+
+- [**MicPlus-Setup.exe**](https://github.com/nivemoon/micplus/releases/download/v1.5/MicPlus-Setup.exe) — установочная версия (~2 MB)
+- [**MicPlusPortable.zip**](https://github.com/nivemoon/micplus/releases/download/v1.5/MicPlusPortable.zip) — портативная версия (~1.5 MB)
+
 ### Портативная версия
-1. Скачайте архив из [Releases](https://github.com/nivemoon/micplus/releases)
+1. Скачайте архив выше или из [Releases](https://github.com/nivemoon/micplus/releases)
 2. Распакуйте в любую папку
 3. Запустите `MicPlus.exe`
 
 ### Установочная версия
-1. Скачайте установщик из [Releases](https://github.com/nivemoon/micplus/releases)
+1. Скачайте установщик выше или из [Releases](https://github.com/nivemoon/micplus/releases)
 2. Запустите и следуйте инструкциям мастера установки
 
 <details>
