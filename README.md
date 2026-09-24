@@ -10,9 +10,9 @@
 <img width="218" height="95" alt="MicPlus menu" src="https://github.com/user-attachments/assets/004a302d-aca5-47e5-8b86-e8757774e923" />
 <img width="270" height="168" alt="MicPlus settings" src="https://github.com/user-attachments/assets/9525d8dd-e785-41fd-a635-c674d4c38ef1" />
 
-> 💡 **Нужно только PTT для мыши?** Посмотрите [**PTT-FFN**](https://github.com/nivemoon/PPT-FFN) — лёгкая утилита только для режима рации.
-
 > English description is available somewhere down below.
+
+💡 **Нужно только PTT для мыши?** Посмотрите [**PTT-FFN**](https://github.com/nivemoon/PPT-FFN) — лёгкая утилита только для режима рации.
 
 ## Установка
 
