@@ -23,6 +23,11 @@ void tray_show_mic_balloon(
     int muted
 );
 
+void tray_show_ptt_mode_balloon(
+    AppState *state,
+    int enabled
+);
+
 void tray_remove_icon(
     AppState *state
 );

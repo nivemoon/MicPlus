@@ -17,20 +17,30 @@ typedef struct {
     char exePath[MAX_PATH];
     char iniPath[MAX_PATH];
     char startupPath[MAX_PATH];
-    char appDataPath[MAX_PATH];      
-    char micctlPath[MAX_PATH]; 
+    char appDataPath[MAX_PATH];
+    char micctlPath[MAX_PATH];
 } AppPaths;
 
 typedef struct {
     int muted;
     int pttMode;
-    int soundMuted;
+    UINT vkPttModeToggle;
+    UINT modPttModeToggle;
+	int soundMuted;
     int iconMode;
     int menuTheme;
 
     UINT vkToggle;
     UINT modToggle;
     int toggleCustomSet;
+
+    UINT vkMicChordFirst;
+    UINT vkMicChordSecond;
+    int micChordKeyDown;
+	
+	UINT vkPttModeChordFirst;
+    UINT vkPttModeChordSecond;
+    int pttModeChordKeyDown;
 
     UINT pttButton;
     UINT vkPttCustom;
@@ -46,9 +56,11 @@ typedef struct {
     int autoStart;
     int enableMicSounds;
     int enablePTTSounds;
+	int enablePTTModeSounds;
     int enableBalloonTips;
-
-    int hideTrayIcon;      // НОВОЕ: скрывать значок из трея
+	int soundVolume;
+	int soundScheme; /* 0 = classic, 1 = micplus */
+    int hideTrayIcon;
 
     char micSoundOn[MAX_PATH];
     char micSoundOff[MAX_PATH];

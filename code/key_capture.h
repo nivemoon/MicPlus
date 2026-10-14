@@ -14,6 +14,15 @@ BOOL key_capture_hotkey(
     UINT *outVirtualKey
 );
 
+BOOL key_capture_mic_hotkey(
+    HWND hWnd,
+    APP_LANG language,
+    UINT *outModifiers,
+    UINT *outVirtualKey,
+    UINT *outChordFirst,
+    UINT *outChordSecond
+);
+
 BOOL key_capture_ptt(
     HWND hWnd,
     APP_LANG language,

@@ -1,17 +1,18 @@
 #define MyAppName "MicPlus"
-#define MyAppVersion "1.5"
+#define MyAppVersion "1.6.0"
 #define MyAppPublisher "Nivemoon Labs"
 #define MyAppExeName "MicPlus.exe"
 
 [Setup]
 AppId={{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
 AppName={#MyAppName}
+AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputDir=Output
-OutputBaseFilename=MicPlus-Setup
+OutputBaseFilename=MicPlus-Setup-{#MyAppVersion}
 SetupIconFile=assets\micplus.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 Compression=lzma
@@ -21,6 +22,8 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 LanguageDetectionMethod=locale
 UsePreviousLanguage=no
+CloseApplications=yes
+RestartApplications=no
 
 [Languages]
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
@@ -35,6 +38,7 @@ Source: "{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "micctl.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs
 Source: "sounds\*"; DestDir: "{app}\sounds"; Flags: ignoreversion recursesubdirs
+Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -56,11 +60,11 @@ begin
                         'Нажмите «Да», чтобы удалить всё.' + #13#10 +
                         'Нажмите «Нет», чтобы удалить только ярлыки и записи реестра.',
                         mbConfirmation, MB_YESNO or MB_DEFBUTTON2);
-    
+
     if MsgResult = idYes then
     begin
       DelTree(ExpandConstant('{app}'), True, True, True);
-      
+
       AppDataPath := ExpandConstant('{userappdata}') + '\MicPlus';
       DeleteFile(AppDataPath + '\micplus.ini');
       DelTree(AppDataPath, True, False, False);

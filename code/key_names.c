@@ -3,6 +3,29 @@
 #include "key_names.h"
 
 #include <stdio.h>
+#include <string.h>
+
+static void key_trim_spaces(char *text)
+{
+    size_t length;
+    char *start = text;
+
+    while (*start == ' ' || *start == '\t') {
+        start++;
+    }
+
+    if (start != text) {
+        memmove(text, start, strlen(start) + 1);
+    }
+
+    length = strlen(text);
+
+    while (length > 0 &&
+           (text[length - 1] == ' ' ||
+            text[length - 1] == '\t')) {
+        text[--length] = '\0';
+    }
+}
 
 static void key_copy_text(
     char *out,
@@ -18,6 +41,8 @@ static void key_copy_text(
         text ? text : "",
         outSize
     );
+
+    key_trim_spaces(out);
 }
 
 void key_get_display_name(
@@ -27,7 +52,6 @@ void key_get_display_name(
 {
     UINT scanCode;
     LONG keyNameParam;
-    char keyName[64];
     int length;
 
     if (!out || outSize <= 0) {
@@ -114,31 +138,42 @@ void key_get_display_name(
         return;
     }
 
-    scanCode = MapVirtualKeyA(
+    scanCode = MapVirtualKeyW(
         virtualKey,
         MAPVK_VK_TO_VSC
     );
 
     if (scanCode != 0) {
+        wchar_t wideName[64];
+
         ZeroMemory(
-            keyName,
-            sizeof(keyName)
+            wideName,
+            sizeof(wideName)
         );
 
         keyNameParam = (LONG)(scanCode << 16);
 
-        length = GetKeyNameTextA(
+        length = GetKeyNameTextW(
             keyNameParam,
-            keyName,
-            sizeof(keyName)
+            wideName,
+            64
         );
 
         if (length > 0) {
-            key_copy_text(
+            WideCharToMultiByte(
+                CP_UTF8,
+                0,
+                wideName,
+                length,
                 out,
                 outSize,
-                keyName
+                NULL,
+                NULL
             );
+
+            out[outSize - 1] = '\0';
+
+            key_trim_spaces(out);
 
             return;
         }
@@ -188,6 +223,8 @@ void key_build_hotkey_name(
         keyName,
         sizeof(keyName)
     );
+
+    key_trim_spaces(keyName);
 
     lstrcatA(
         result,
@@ -245,5 +282,42 @@ void key_get_ptt_label(
         out,
         outSize,
         "~"
+    );
+}
+
+void key_build_chord_name(
+    UINT firstVirtualKey,
+    UINT secondVirtualKey,
+    char *out,
+    int outSize)
+{
+    char firstName[64];
+    char secondName[64];
+
+    if (!out || outSize <= 0) {
+        return;
+    }
+
+    key_get_display_name(
+        firstVirtualKey,
+        firstName,
+        sizeof(firstName)
+    );
+
+    key_get_display_name(
+        secondVirtualKey,
+        secondName,
+        sizeof(secondName)
+    );
+
+    key_trim_spaces(firstName);
+    key_trim_spaces(secondName);
+
+    snprintf(
+        out,
+        outSize,
+        "%s + %s",
+        firstName,
+        secondName
     );
 }

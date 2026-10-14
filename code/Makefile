@@ -18,27 +18,29 @@ SOURCES = \
     key_names.c \
     sounds.c \
     microphone.c \
+	audio_device.c \
     system_sound.c \
     tray.c \
     tray_menu.c \
     key_capture.c \
     hooks.c \
+    passive_ptt.c \
     unicode.c \
-	updater.c
+    updater.c
 
 OBJECTS = $(SOURCES:.c=.o)
 
 LIBS = \
-	-lshell32 \
-	-lole32 \
-	-loleaut32 \
-	-luuid \
-	-lcomctl32 \
-	-lshlwapi \
-	-lwinmm \
-	-lversion \
-	-ladvapi32 \
-	-lwinhttp
+    -lshell32 \
+    -lole32 \
+    -loleaut32 \
+    -luuid \
+    -lcomctl32 \
+    -lshlwapi \
+    -lwinmm \
+    -lversion \
+    -ladvapi32 \
+    -lwinhttp
 
 all: $(TARGET)
 

@@ -14,8 +14,8 @@ IDI_ICON_ON_DARK ICON "assets/icons/on_dark.ico"
 IDI_ICON_OFF_RED ICON "assets/icons/off_red.ico"
 
 1 VERSIONINFO
-FILEVERSION 1,5,0,0
-PRODUCTVERSION 1,5,0,0
+FILEVERSION 1,6,0,0
+PRODUCTVERSION 1,6,0,0
 FILEFLAGSMASK 0x3fL
 FILEFLAGS 0x0L
 FILEOS 0x40004L
@@ -28,12 +28,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Nivemoon Labs"
             VALUE "FileDescription", "MicPlus"
-            VALUE "FileVersion", "1.5.0.0"
+            VALUE "FileVersion", "1.6.0.0"
             VALUE "InternalName", "MicPlus"
             VALUE "LegalCopyright", "Copyright (C) 2026 Nivemoon Labs"
             VALUE "OriginalFilename", "MicPlus"
             VALUE "ProductName", "MicPlus"
-            VALUE "ProductVersion", "1.5.0.0"
+            VALUE "ProductVersion", "1.6.0.0"
         END
     END
 
@@ -54,7 +54,7 @@ BEGIN
     LTEXT       "MicPlus",           IDC_ABOUT_NAME,
                 56, 10, 232, 12
 
-    LTEXT       "Версия 1.5",    IDC_ABOUT_VERSION,
+    LTEXT       "Версия 1.6",    IDC_ABOUT_VERSION,
                 56, 28, 232, 12
 
     LTEXT       "Глобальное управление микрофоном и PTT.",
@@ -68,7 +68,7 @@ BEGIN
                 "GitHub (исходный код)</A>",
                 IDC_ABOUT_LINK,
                 "SysLink",
-                WS_TABSTOP | WS_VISIBLE,
+                WS_VISIBLE,
                 40, 72, 276, 16
 
     LTEXT       "Ctrl+Alt+Shift+M - скрыть/показать значок в трее.",
@@ -78,13 +78,18 @@ BEGIN
     LTEXT       "Ctrl+F9 - вкл/выкл звуки системы.",
                 0,
                 12, 108, 276, 12
+				
+	LTEXT       "D.U.S.K.",
+                0,
+                12, 121, 276, 12			
+				
 
     PUSHBUTTON  "Проверить обновления", IDC_ABOUT_CHECKUPDATE,
-                12, 132, 120, 14
+                12, 140, 120, 14
 
     PUSHBUTTON  "Удалить настройки", IDC_ABOUT_RESET,
-                12, 152, 120, 14
+                12, 158, 120, 14
 
     DEFPUSHBUTTON "Закрыть",         IDC_ABOUT_CLOSE,
-                218, 152, 70, 14
+                218, 158, 70, 14
 END

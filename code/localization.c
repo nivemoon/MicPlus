@@ -39,7 +39,7 @@ const char *localization_get(
             return "Сигналы в режиме рации (РТТ)";
 
         if (lstrcmpA(id, "MENU_BALLOON") == 0)
-            return "Показывать уведомления";
+            return "Системные уведомления";
 
         if (lstrcmpA(id, "MENU_HIDE_TRAY") == 0)
             return "Скрыть значок из трея";
@@ -48,16 +48,19 @@ const char *localization_get(
             return "Выход";
 
         if (lstrcmpA(id, "MENU_PTT_BUTTON") == 0)
-            return "Кнопка режима РТТ";
+            return "Кнопка Рации (РТТ)";
 
         if (lstrcmpA(id, "MENU_MIC_BUTTON") == 0)
             return "Кнопка микрофона";
 
         if (lstrcmpA(id, "MENU_PTT_CUSTOM") == 0)
-            return "Режим РТТ: Назначить...";
+            return "Кнопка РТТ: Назначить...";
 
         if (lstrcmpA(id, "MENU_MIC_CUSTOM") == 0)
             return "Микрофон: Назначить...";
+
+        if (lstrcmpA(id, "MENU_PASSIVE_CUSTOM") == 0)
+            return "Двойной клик: Назначить...";
 
         if (lstrcmpA(id, "MENU_ABOUT") == 0)
             return "О программе";
@@ -72,7 +75,7 @@ const char *localization_get(
             return "Тильда (~)";
 
         if (lstrcmpA(id, "MENU_ICON_COLOR") == 0)
-            return "Цвет иконки приложения";
+            return "Цвет значка MicPlus";
 
         if (lstrcmpA(id, "ICON_AUTO") == 0)
             return "Система";
@@ -88,16 +91,11 @@ const char *localization_get(
 
         if (lstrcmpA(id, "MSG_TOGGLE_SELECT_TEXT") == 0)
             return "Закройте это окно, затем нажмите нужное сочетание "
-                   "(модификаторы + клавиша).\n"
+                   "(клавиша, две клавиши, модификаторы + клавиша).\n"
                    "ESC в основном окне отменяет выбор.";
 
         if (lstrcmpA(id, "MSG_SOUND_SELECT_TITLE") == 0)
             return "MicPlus - Хоткей звука системы";
-
-        if (lstrcmpA(id, "MSG_SOUND_SELECT_TEXT") == 0)
-            return "Закройте это окно, затем нажмите нужное сочетание "
-                   "(модификаторы + клавиша) для звука.\n"
-                   "ESC в основном окне отменяет выбор.";
 
         if (lstrcmpA(id, "MSG_PTT_SELECT_TITLE") == 0)
             return "MicPlus - Выбор PTT-клавиши";
@@ -124,38 +122,58 @@ const char *localization_get(
             return "Не удалось установить низкоуровневые хуки.";
 
         if (lstrcmpA(id, "MSG_ERR_HOTKEY") == 0)
-            return "Не удалось зарегистрировать хоткей.";
+            return "Не удалось зарегистрировать горячую клавишу.";
 
         if (lstrcmpA(id, "TOOLTIP_FORMAT_ON") == 0)
-            return "MicPlus: ВКЛ (РТТ %s, Мик %s, Звук %s)";
+            return "MicPlus: PTT %s, Микрофон %s, Звук %s";
 
         if (lstrcmpA(id, "TOOLTIP_FORMAT_OFF") == 0)
-            return "MicPlus: ВЫКЛ (РТТ %s, Мик %s, Звук %s)";
+            return "MicPlus: PTT %s, Микрофон %s, Звук %s";
 
         if (lstrcmpA(id, "BALLOON_MIC_ON_TITLE") == 0)
             return "MicPlus";
 
         if (lstrcmpA(id, "BALLOON_MIC_ON_TEXT") == 0)
-            return "Микрофон ВКЛ";
+            return "Микрофон включён";
 
         if (lstrcmpA(id, "BALLOON_MIC_OFF_TITLE") == 0)
             return "MicPlus";
 
         if (lstrcmpA(id, "BALLOON_MIC_OFF_TEXT") == 0)
-            return "Микрофон ВЫКЛ";
+            return "Микрофон выключен";
 
-    } else {
+        if (lstrcmpA(id, "BALLOON_PTT_TITLE") == 0)
+            return "MicPlus";
+
+        if (lstrcmpA(id, "BALLOON_PTT_ON_TEXT") == 0)
+            return "Режим РТТ включён";
+
+        if (lstrcmpA(id, "BALLOON_PTT_OFF_TEXT") == 0)
+            return "Режим РТТ выключен";
+
+        if (lstrcmpA(id, "MENU_PTT_MODE_CUSTOM") == 0)
+            return "Режим РТТ (Alt + P) | Ред.";
+
+        if (lstrcmpA(id, "MSG_PTT_MODE_SELECT_TITLE") == 0)
+            return "MicPlus - Сочетание режима РТТ";
+
+        if (lstrcmpA(id, "MSG_PTT_MODE_SELECT_TEXT") == 0)
+            return "Закройте это окно, затем нажмите нужное сочетание.\n"
+                   "ESC отменяет выбор и оставляет текущее сочетание без изменений.";
+    }
+
+    if (language == LANG_EN) {
         if (lstrcmpA(id, "MENU_PTT_MODE") == 0)
-            return "PTT mode";
+            return "Enable Push-to-Talk";
 
         if (lstrcmpA(id, "MENU_MIC") == 0)
-            return "Microphone";
+            return "Enable Microphone";
 
         if (lstrcmpA(id, "MENU_SOUND") == 0)
-            return "Global sound";
+            return "System Sound";
 
         if (lstrcmpA(id, "MENU_HOTKEYS") == 0)
-            return "Hotkeys";
+            return "Keyboard shortcuts";
 
         if (lstrcmpA(id, "MENU_SETTINGS") == 0)
             return "Settings";
@@ -164,34 +182,37 @@ const char *localization_get(
             return "Language";
 
         if (lstrcmpA(id, "MENU_AUTOSTART") == 0)
-            return "Start MicPlus with Windows";
+            return "Start with Windows";
 
         if (lstrcmpA(id, "MENU_MIC_SOUNDS") == 0)
-            return "Microphone sounds (mute/unmute)";
+            return "Microphone Sounds (On/Off)";
 
         if (lstrcmpA(id, "MENU_PTT_SOUNDS") == 0)
-            return "PTT sounds (push-to-talk)";
+            return "Push-to-Talk Sounds";
 
         if (lstrcmpA(id, "MENU_BALLOON") == 0)
-            return "Microphone notifications (balloon)";
+            return "Show Notifications";
 
         if (lstrcmpA(id, "MENU_HIDE_TRAY") == 0)
-            return "Hide tray icon";
+            return "Hide Tray Icon";
 
         if (lstrcmpA(id, "MENU_EXIT") == 0)
             return "Exit";
 
         if (lstrcmpA(id, "MENU_PTT_BUTTON") == 0)
-            return "PTT Button";
+            return "PTT button";
 
         if (lstrcmpA(id, "MENU_MIC_BUTTON") == 0)
-            return "Mic Button";
+            return "Microphone button";
 
         if (lstrcmpA(id, "MENU_PTT_CUSTOM") == 0)
-            return "PTT: Custom...";
+            return "PTT button: Assign...";
 
         if (lstrcmpA(id, "MENU_MIC_CUSTOM") == 0)
-            return "Mic: Custom...";
+            return "Microphone: Assign...";
+
+        if (lstrcmpA(id, "MENU_PASSIVE_CUSTOM") == 0)
+            return "Passive Push-to-Talk: Assign...";
 
         if (lstrcmpA(id, "MENU_ABOUT") == 0)
             return "About";
@@ -206,62 +227,48 @@ const char *localization_get(
             return "Tilde (~)";
 
         if (lstrcmpA(id, "MENU_ICON_COLOR") == 0)
-            return "Icon color";
+            return "App Icon Color";
 
         if (lstrcmpA(id, "ICON_AUTO") == 0)
-            return "Auto";
+            return "System";
 
         if (lstrcmpA(id, "ICON_BLACK") == 0)
-            return "Black";
-
-        if (lstrcmpA(id, "ICON_WHITE") == 0)
             return "White";
 
-        if (lstrcmpA(id, "MENU_THEME") == 0)
-            return "Menu theme";
-
-        if (lstrcmpA(id, "THEME_DARK") == 0)
-            return "Dark";
-
-        if (lstrcmpA(id, "THEME_LIGHT") == 0)
-            return "Light";
+        if (lstrcmpA(id, "ICON_WHITE") == 0)
+            return "Black";
 
         if (lstrcmpA(id, "MSG_TOGGLE_SELECT_TITLE") == 0)
-            return "MicPlus - Mic hotkey";
+            return "MicPlus - Microphone Hotkey";
 
         if (lstrcmpA(id, "MSG_TOGGLE_SELECT_TEXT") == 0)
-            return "Close this window, then press modifiers+key "
-                   "in the main window.\n"
-                   "Press Esc in the main window to cancel.";
+            return "Close this window, then press the combination you want "
+                   "(a key, two keys, or modifiers plus a key).\n"
+                   "Press ESC in the main window to cancel.";
 
         if (lstrcmpA(id, "MSG_SOUND_SELECT_TITLE") == 0)
-            return "MicPlus - Global sound hotkey";
-
-        if (lstrcmpA(id, "MSG_SOUND_SELECT_TEXT") == 0)
-            return "Close this window, then press modifiers+key "
-                   "for sound.\n"
-                   "Press Esc in the main window to cancel.";
+            return "MicPlus - System Sound Hotkey";
 
         if (lstrcmpA(id, "MSG_PTT_SELECT_TITLE") == 0)
-            return "MicPlus - Select PTT key";
+            return "MicPlus - Select Push-to-Talk Key";
 
         if (lstrcmpA(id, "MSG_PTT_SELECT_TEXT") == 0)
-            return "Close this window, then press the desired PTT key.\n"
-                   "Press Esc in the main window to cancel.";
+            return "Close this window, then press the Push-to-Talk key you want.\n"
+                   "Press ESC in the main window to cancel.";
 
         if (lstrcmpA(id, "MSG_SELECTED_HK") == 0)
-            return "Selected hotkey: %s";
+            return "Hotkey selected: %s";
 
         if (lstrcmpA(id, "MSG_SELECTED_PTT") == 0)
-            return "Selected PTT key: %s";
+            return "Push-to-Talk key selected: %s";
 
         if (lstrcmpA(id, "MSG_ERR_TOGGLE_ENTER_ESC") == 0)
-            return "Enter/Esc cannot be used alone.\n"
-                   "Please include Ctrl/Alt/Shift/Win or pick another key.";
+            return "Enter or Esc cannot be used on their own.\n"
+                   "Add Ctrl, Alt, Shift, or Win, or choose another key.";
 
         if (lstrcmpA(id, "MSG_ERR_PTT_ENTER_ESC") == 0)
-            return "Enter/Esc cannot be used for PTT.\n"
-                   "Pick another key.";
+            return "Enter or Esc cannot be used for Push-to-Talk.\n"
+                   "Choose another key.";
 
         if (lstrcmpA(id, "MSG_ERR_HOOK") == 0)
             return "Failed to set low-level hooks.";
@@ -270,22 +277,41 @@ const char *localization_get(
             return "Failed to register hotkey.";
 
         if (lstrcmpA(id, "TOOLTIP_FORMAT_ON") == 0)
-            return "MicPlus: ON (PTT %s, Mic %s, Sound %s)";
+            return "MicPlus: PTT %s, Microphone %s, Sound %s";
 
         if (lstrcmpA(id, "TOOLTIP_FORMAT_OFF") == 0)
-            return "MicPlus: OFF (PTT %s, Mic %s, Sound %s)";
+            return "MicPlus: PTT %s, Microphone %s, Sound %s";
 
         if (lstrcmpA(id, "BALLOON_MIC_ON_TITLE") == 0)
             return "MicPlus";
 
         if (lstrcmpA(id, "BALLOON_MIC_ON_TEXT") == 0)
-            return "Microphone ON";
+            return "Microphone on";
 
         if (lstrcmpA(id, "BALLOON_MIC_OFF_TITLE") == 0)
             return "MicPlus";
 
         if (lstrcmpA(id, "BALLOON_MIC_OFF_TEXT") == 0)
-            return "Microphone OFF";
+            return "Microphone off";
+
+        if (lstrcmpA(id, "BALLOON_PTT_TITLE") == 0)
+            return "MicPlus";
+
+        if (lstrcmpA(id, "BALLOON_PTT_ON_TEXT") == 0)
+            return "PTT mode on";
+
+        if (lstrcmpA(id, "BALLOON_PTT_OFF_TEXT") == 0)
+            return "PTT mode off";
+
+        if (lstrcmpA(id, "MENU_PTT_MODE_CUSTOM") == 0)
+            return "PTT mode (Alt + P) | Edit";
+
+        if (lstrcmpA(id, "MSG_PTT_MODE_SELECT_TITLE") == 0)
+            return "MicPlus - PTT Mode Hotkey";
+
+        if (lstrcmpA(id, "MSG_PTT_MODE_SELECT_TEXT") == 0)
+            return "Close this window, then press the desired hotkey.\n"
+                   "ESC cancels and keeps the current hotkey unchanged.";
     }
 
     return id;

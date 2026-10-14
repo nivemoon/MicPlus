@@ -2,18 +2,17 @@
 #define RESOURCE_H
 
 
-#define IDI_APP_ICON             101
+#define IDI_APP_ICON            101
 #define IDI_ICON_ON_LIGHT       102
 #define IDI_ICON_ON_DARK        103
 #define IDI_ICON_OFF_RED        104
-
-#define IDI_APP_ICON       101
-#define IDI_GITHUB_ICON    102
+#define IDI_APP_ICON       		101
+#define IDI_GITHUB_ICON    		2008
 
 #define IDC_ABOUT_APP_ICON     2007
 #define IDC_ABOUT_GITHUB       2008
 
-#define WM_APP_TRAY             (WM_APP + 1)
+#define WM_APP_TRAY            (WM_APP + 1)
 #define WM_APP_TOGGLE_MIC      (WM_APP + 2)
 #define WM_APP_TOGGLE_SOUND    (WM_APP + 3)
 
@@ -32,6 +31,8 @@
 #define ID_HK_MIC_F10          1202
 #define ID_HK_MIC_TILDE        1203
 #define ID_HK_MIC_CUSTOM       1204
+#define ID_HK_PTT_MODE_CUSTOM  1205
+#define ID_HK_PASSIVE_CUSTOM   9101
 
 #define ID_LANG_EN             1301
 #define ID_LANG_RU             1302
@@ -54,7 +55,7 @@
 #define IDC_ABOUT_NAME          2004
 #define IDC_ABOUT_VERSION       2005
 #define IDC_ABOUT_DESCRIPTION   2006
-#define IDC_ABOUT_APP_ICON     2007
-#define IDC_ABOUT_COPYRIGHT 2009
+#define IDC_ABOUT_APP_ICON      2007
+#define IDC_ABOUT_COPYRIGHT     2009
 
 #endif

@@ -1,7 +1,7 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
 
 #include "settings.h"
-
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -87,6 +87,26 @@ static void settings_read_string(
         iniPath
     );
 }
+	
+	static void settings_fix_sound_extensions(AppState *state)
+{
+    char *fields[] = {
+        state->micSoundOn,
+        state->micSoundOff,
+        state->pttSoundOn,
+        state->pttSoundOff
+    };
+    int i;
+
+    for (i = 0; i < 4; i++) {
+        size_t len = strlen(fields[i]);
+
+        if (len >= 4 &&
+            _stricmp(fields[i] + len - 4, ".wav") == 0) {
+            strcpy(fields[i] + len - 4, ".mp3");
+        }
+    }
+}
 
 static void settings_write_bool(
     const char *section,
@@ -151,10 +171,40 @@ void settings_load(
         return;
     }
 
-    state->pttMode = settings_read_bool(
+        state->pttMode = settings_read_bool(
         "General",
         "PTTMode",
+        1,
+        paths->iniPath
+    );
+
+    state->vkPttModeChordFirst = settings_read_uint(
+        "General",
+        "PttModeChordFirst",
         0,
+        paths->iniPath
+    );
+
+    state->vkPttModeChordSecond = settings_read_uint(
+        "General",
+        "PttModeChordSecond",
+        0,
+        paths->iniPath
+    );
+
+    state->pttModeChordKeyDown = 0;
+
+	state->vkPttModeToggle = settings_read_uint(
+        "General",
+        "PttModeToggleVK",
+        'P',
+        paths->iniPath
+    );
+
+    state->modPttModeToggle = settings_read_uint(
+        "General",
+        "PttModeToggleMods",
+        MOD_ALT,
         paths->iniPath
     );
 
@@ -175,6 +225,22 @@ void settings_load(
         0,
         paths->iniPath
     );
+
+    state->vkMicChordFirst = settings_read_uint(
+        "General",
+        "MicChordFirst",
+        0,
+        paths->iniPath
+    );
+
+    state->vkMicChordSecond = settings_read_uint(
+        "General",
+        "MicChordSecond",
+        0,
+        paths->iniPath
+    );
+
+    state->micChordKeyDown = 0;
 
     state->pttButton =
         settings_read_uint(
@@ -234,12 +300,38 @@ void settings_load(
         paths->iniPath
     );
 
+state->soundVolume = (int)settings_read_uint(
+    "General",
+    "SoundVolume",
+    50,
+    paths->iniPath
+);
+
+state->soundScheme = (int)settings_read_uint(
+    "General",
+    "SoundScheme",
+    0,
+    paths->iniPath
+);
+
+if (state->soundScheme != 0 &&
+    state->soundScheme != 1) {
+    state->soundScheme = 0;
+}
+
     state->enablePTTSounds = settings_read_bool(
         "General",
         "EnablePTTSounds",
         1,
         paths->iniPath
     );
+
+state->enablePTTModeSounds = settings_read_bool(
+    "General",
+    "EnablePTTModeSounds",
+    1,
+    paths->iniPath
+);
 
     state->enableBalloonTips = settings_read_bool(
         "General",
@@ -251,7 +343,7 @@ void settings_load(
     settings_read_string(
         "General",
         "MicSoundOn",
-        "mic_on.wav",
+        "mic_on.mp3",
         state->micSoundOn,
         sizeof(state->micSoundOn),
         paths->iniPath
@@ -260,7 +352,7 @@ void settings_load(
     settings_read_string(
         "General",
         "MicSoundOff",
-        "mic_off.wav",
+        "mic_off.mp3",
         state->micSoundOff,
         sizeof(state->micSoundOff),
         paths->iniPath
@@ -269,7 +361,7 @@ void settings_load(
     settings_read_string(
         "General",
         "PTTSoundOn",
-        "ptt_start.wav",
+        "ptt_start.mp3",
         state->pttSoundOn,
         sizeof(state->pttSoundOn),
         paths->iniPath
@@ -278,7 +370,7 @@ void settings_load(
     settings_read_string(
         "General",
         "PTTSoundOff",
-        "ptt_end.wav",
+        "ptt_end.mp3",
         state->pttSoundOff,
         sizeof(state->pttSoundOff),
         paths->iniPath
@@ -308,13 +400,21 @@ void settings_load(
         state->menuTheme = 0;
     }
 
-    // НОВОЕ: загрузка hideTrayIcon
-    state->hideTrayIcon = settings_read_bool(
+        state->hideTrayIcon = settings_read_bool(
         "General",
         "HideTrayIcon",
         0,
         paths->iniPath
     );
+
+	    state->muted = settings_read_bool(
+        "General",
+        "Muted",
+        0,
+        paths->iniPath
+    );
+
+    settings_fix_sound_extensions(state);
 }
 
 void settings_save(
@@ -350,6 +450,20 @@ void settings_save(
 
     settings_write_uint(
         "General",
+        "MicChordFirst",
+        state->vkMicChordFirst,
+        paths->iniPath
+    );
+
+    settings_write_uint(
+        "General",
+        "MicChordSecond",
+        state->vkMicChordSecond,
+        paths->iniPath
+    );
+
+    settings_write_uint(
+        "General",
         "PTTButton",
         state->pttButton == XBUTTON1
             ? 1
@@ -380,6 +494,34 @@ void settings_save(
         paths->iniPath
     );
 
+    settings_write_uint(
+        "General",
+        "PttModeToggleVK",
+        state->vkPttModeToggle,
+        paths->iniPath
+    );
+
+    settings_write_uint(
+        "General",
+        "PttModeToggleMods",
+        state->modPttModeToggle,
+        paths->iniPath
+    );
+
+    settings_write_uint(
+        "General",
+        "PttModeChordFirst",
+        state->vkPttModeChordFirst,
+        paths->iniPath
+    );
+
+    settings_write_uint(
+        "General",
+        "PttModeChordSecond",
+        state->vkPttModeChordSecond,
+        paths->iniPath
+    );
+
     settings_write_bool(
         "General",
         "AutoStart",
@@ -393,6 +535,20 @@ void settings_save(
         state->enableMicSounds,
         paths->iniPath
     );
+
+settings_write_uint(
+    "General",
+    "SoundVolume",
+    (UINT)state->soundVolume,
+    paths->iniPath
+);
+
+settings_write_uint(
+    "General",
+    "SoundScheme",
+    (UINT)state->soundScheme,
+    paths->iniPath
+);
 
     settings_write_bool(
         "General",
@@ -450,11 +606,17 @@ void settings_save(
         paths->iniPath
     );
 
-    // НОВОЕ: сохранение hideTrayIcon
     settings_write_bool(
         "General",
         "HideTrayIcon",
         state->hideTrayIcon,
+        paths->iniPath
+    );
+
+	settings_write_bool(
+        "General",
+        "Muted",
+        state->muted,
         paths->iniPath
     );
 }

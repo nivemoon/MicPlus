@@ -23,4 +23,11 @@ void key_get_ptt_label(
     int outSize
 );
 
+void key_build_chord_name(
+    UINT firstVirtualKey,
+    UINT secondVirtualKey,
+    char *out,
+    int outSize
+);
+
 #endif

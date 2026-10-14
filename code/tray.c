@@ -6,7 +6,7 @@
 #include "localization.h"
 #include "theme.h"
 #include "unicode.h"
-
+#include "key_names.h"
 #include "resource.h"
 
 #include <shellapi.h>
@@ -126,6 +126,8 @@ void tray_update_tooltip(
     char micName[64];
     char soundName[64];
     char tooltip[256];
+	char chordName[128];
+const char *micHotkeyName;
 
     WCHAR wideTooltip[ARRAYSIZE(
         state->nid.szTip
@@ -139,12 +141,27 @@ void tray_update_tooltip(
         return;
     }
 
+    if (state->vkMicChordFirst != 0 &&
+    state->vkMicChordSecond != 0) {
+
+    key_build_chord_name(
+        state->vkMicChordFirst,
+        state->vkMicChordSecond,
+        chordName,
+        sizeof(chordName)
+    );
+
+    micHotkeyName = chordName;
+} else {
     key_build_hotkey_name(
         state->modToggle,
         state->vkToggle,
         micName,
         sizeof(micName)
     );
+
+    micHotkeyName = micName;
+}
 
     key_build_hotkey_name(
         state->modSoundToggle,
@@ -172,12 +189,12 @@ void tray_update_tooltip(
         ? state->hIconOffRed
         : state->hIconOnCurrent;
 
-    snprintf(
+        snprintf(
         tooltip,
         sizeof(tooltip),
         format,
         pttName,
-        micName,
+        micHotkeyName,
         soundName
     );
 
@@ -271,6 +288,52 @@ void tray_show_mic_balloon(
         NIM_MODIFY,
         &state->nid
     );
+}
+
+void tray_show_ptt_mode_balloon(
+    AppState *state,
+    int enabled)
+{
+    const char *title;
+    const char *text;
+
+    WCHAR wideTitle[ARRAYSIZE(state->nid.szInfoTitle)];
+    WCHAR wideText[ARRAYSIZE(state->nid.szInfo)];
+
+    if (!state ||
+        !state->nid.hWnd ||
+        !state->enableBalloonTips) {
+        return;
+    }
+
+    title = localization_get(state->lang, "BALLOON_PTT_TITLE");
+    text = localization_get(
+        state->lang,
+        enabled ? "BALLOON_PTT_ON_TEXT" : "BALLOON_PTT_OFF_TEXT"
+    );
+
+    if (!tray_copy_utf8_to_wide(
+            title, wideTitle, ARRAYSIZE(wideTitle)) ||
+        !tray_copy_utf8_to_wide(
+            text, wideText, ARRAYSIZE(wideText))) {
+        return;
+    }
+
+    state->nid.uFlags = NIF_INFO;
+
+    lstrcpynW(
+        state->nid.szInfoTitle,
+        wideTitle,
+        ARRAYSIZE(state->nid.szInfoTitle)
+    );
+    lstrcpynW(
+        state->nid.szInfo,
+        wideText,
+        ARRAYSIZE(state->nid.szInfo)
+    );
+
+    state->nid.dwInfoFlags = NIIF_INFO;
+    Shell_NotifyIconW(NIM_MODIFY, &state->nid);
 }
 
 BOOL tray_add_icon(
