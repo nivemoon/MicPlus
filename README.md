@@ -18,8 +18,8 @@
 
 ### 📥 Прямые ссылки
 
-- [**MicPlus-Setup-1.6.0.exe**](https://github.com/nivemoon/micplus/releases/download/v1.6/MicPlus-Setup-1.6.0.exe) — установочная версия 
-- [**MicPlus_1.6.0_Portable.zip**](https://github.com/nivemoon/micplus/releases/download/v1.6/MicPlus_1.6.0_Portable.zip) — портативная версия 
+- [**MicPlus-Setup-1.6.0.exe**](https://github.com/nivemoon/micplus/releases/download/1.6/MicPlus-Setup-1.6.0.exe) — установочная версия 
+- [**MicPlus_1.6.0_Portable.zip**](https://github.com/nivemoon/micplus/releases/download/1.6/MicPlus_1.6.0_Portable.zip) — портативная версия 
 
 ### Портативная версия
 1. Скачать архив выше или из [Releases](https://github.com/nivemoon/micplus/releases)
