@@ -1,5 +1,5 @@
 #define MyAppName "MicPlus"
-#define MyAppVersion "1.6.0"
+#define MyAppVersion "1.6.1"
 #define MyAppPublisher "Nivemoon Labs"
 #define MyAppExeName "MicPlus.exe"
 
@@ -46,8 +46,8 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Name: "{userstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: autostart
 
 [Run]
+Filename: "{sys}\attrib.exe"; Parameters: "+h ""{app}\assets\*.mp3"""; Flags: runhidden
 Filename: "{app}\{#MyAppExeName}"; Description: "Запустить MicPlus"; Flags: nowait postinstall skipifsilent
-
 [Code]
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 var
@@ -63,7 +63,7 @@ begin
 
     if MsgResult = idYes then
     begin
-      DelTree(ExpandConstant('{app}'), True, True, True);
+      DelTree(ExpandConstant('{app}') + '\assets', True, True, True);
 
       AppDataPath := ExpandConstant('{userappdata}') + '\MicPlus';
       DeleteFile(AppDataPath + '\micplus.ini');

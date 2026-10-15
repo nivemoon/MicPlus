@@ -128,14 +128,49 @@ void key_get_display_name(
         return;
     }
 
-    if (virtualKey == VK_OEM_3) {
-        key_copy_text(
-            out,
-            outSize,
-            "~"
-        );
+        switch (virtualKey) {
+        /* Знаки — всегда английские названия */
+        case VK_OEM_1:     key_copy_text(out, outSize, ";");  return;  /* ж */
+        case VK_OEM_PLUS:  key_copy_text(out, outSize, "=");  return;
+        case VK_OEM_COMMA: key_copy_text(out, outSize, ",");  return;  /* б */
+        case VK_OEM_MINUS: key_copy_text(out, outSize, "-");  return;
+        case VK_OEM_PERIOD:key_copy_text(out, outSize, ".");  return;  /* ю */
+        case VK_OEM_2:     key_copy_text(out, outSize, "/");  return;  /* . */
+        case VK_OEM_3:     key_copy_text(out, outSize, "`");  return;  /* ё */
+        case VK_OEM_4:     key_copy_text(out, outSize, "[");  return;  /* х */
+        case VK_OEM_5:     key_copy_text(out, outSize, "\\"); return;
+        case VK_OEM_6:     key_copy_text(out, outSize, "]");  return;  /* ъ */
+        case VK_OEM_7:     key_copy_text(out, outSize, "'");  return;  /* э */
 
-        return;
+        case VK_SPACE:   key_copy_text(out, outSize, "Space"); return;
+        case VK_TAB:     key_copy_text(out, outSize, "Tab"); return;
+        case VK_CAPITAL: key_copy_text(out, outSize, "Caps Lock"); return;
+        case VK_BACK:    key_copy_text(out, outSize, "Backspace"); return;
+        case VK_NUMLOCK: key_copy_text(out, outSize, "Num Lock"); return;
+        case VK_SCROLL:  key_copy_text(out, outSize, "Scroll Lock"); return;
+        case VK_INSERT:  key_copy_text(out, outSize, "Insert"); return;
+        case VK_DELETE:  key_copy_text(out, outSize, "Delete"); return;
+        case VK_HOME:    key_copy_text(out, outSize, "Home"); return;
+        case VK_END:     key_copy_text(out, outSize, "End"); return;
+        case VK_PRIOR:   key_copy_text(out, outSize, "Page Up"); return;
+        case VK_NEXT:    key_copy_text(out, outSize, "Page Down"); return;
+
+        /* Нумпад */
+        case VK_NUMPAD0: key_copy_text(out, outSize, "Num 0"); return;
+        case VK_NUMPAD1: key_copy_text(out, outSize, "Num 1"); return;
+        case VK_NUMPAD2: key_copy_text(out, outSize, "Num 2"); return;
+        case VK_NUMPAD3: key_copy_text(out, outSize, "Num 3"); return;
+        case VK_NUMPAD4: key_copy_text(out, outSize, "Num 4"); return;
+        case VK_NUMPAD5: key_copy_text(out, outSize, "Num 5"); return;
+        case VK_NUMPAD6: key_copy_text(out, outSize, "Num 6"); return;
+        case VK_NUMPAD7: key_copy_text(out, outSize, "Num 7"); return;
+        case VK_NUMPAD8: key_copy_text(out, outSize, "Num 8"); return;
+        case VK_NUMPAD9: key_copy_text(out, outSize, "Num 9"); return;
+        case VK_MULTIPLY: key_copy_text(out, outSize, "Num *"); return;
+        case VK_ADD:      key_copy_text(out, outSize, "Num +"); return;
+        case VK_SUBTRACT: key_copy_text(out, outSize, "Num -"); return;
+        case VK_DECIMAL:  key_copy_text(out, outSize, "Num ."); return;
+        case VK_DIVIDE:   key_copy_text(out, outSize, "Num /"); return;
     }
 
     scanCode = MapVirtualKeyW(

@@ -118,8 +118,50 @@ static const char *format_hotkey(UINT modifiers, UINT vk)
         case VK_F10: keyName = "F10"; break;
         case VK_F11: keyName = "F11"; break;
         case VK_F12: keyName = "F12"; break;
-        case VK_OEM_3: keyName = "~"; break;
-        case VK_SPACE: keyName = "Space"; break;
+
+        /* Знаки — всегда английские названия */
+        case VK_OEM_1:     keyName = ";";  break;  /* ж */
+        case VK_OEM_PLUS:  keyName = "=";  break;
+        case VK_OEM_COMMA: keyName = ",";  break;  /* б */
+        case VK_OEM_MINUS: keyName = "-";  break;
+        case VK_OEM_PERIOD:keyName = ".";  break;  /* ю */
+        case VK_OEM_2:     keyName = "/";  break;  /* . */
+        case VK_OEM_3:     keyName = "`";  break;  /* ё */
+        case VK_OEM_4:     keyName = "[";  break;  /* х */
+        case VK_OEM_5:     keyName = "\\"; break;
+        case VK_OEM_6:     keyName = "]";  break;  /* ъ */
+        case VK_OEM_7:     keyName = "'";  break;  /* э */
+
+        case VK_SPACE:     keyName = "Space"; break;
+        case VK_TAB:       keyName = "Tab"; break;
+        case VK_CAPITAL:   keyName = "Caps Lock"; break;
+        case VK_BACK:      keyName = "Backspace"; break;
+        case VK_NUMLOCK:   keyName = "Num Lock"; break;
+        case VK_SCROLL:    keyName = "Scroll Lock"; break;
+        case VK_INSERT:    keyName = "Insert"; break;
+        case VK_DELETE:    keyName = "Delete"; break;
+        case VK_HOME:      keyName = "Home"; break;
+        case VK_END:       keyName = "End"; break;
+        case VK_PRIOR:     keyName = "Page Up"; break;
+        case VK_NEXT:      keyName = "Page Down"; break;
+
+        /* Нумпад */
+        case VK_NUMPAD0: keyName = "Num 0"; break;
+        case VK_NUMPAD1: keyName = "Num 1"; break;
+        case VK_NUMPAD2: keyName = "Num 2"; break;
+        case VK_NUMPAD3: keyName = "Num 3"; break;
+        case VK_NUMPAD4: keyName = "Num 4"; break;
+        case VK_NUMPAD5: keyName = "Num 5"; break;
+        case VK_NUMPAD6: keyName = "Num 6"; break;
+        case VK_NUMPAD7: keyName = "Num 7"; break;
+        case VK_NUMPAD8: keyName = "Num 8"; break;
+        case VK_NUMPAD9: keyName = "Num 9"; break;
+        case VK_MULTIPLY: keyName = "Num *"; break;
+        case VK_ADD:      keyName = "Num +"; break;
+        case VK_SUBTRACT: keyName = "Num -"; break;
+        case VK_DECIMAL:  keyName = "Num ."; break;
+        case VK_DIVIDE:   keyName = "Num /"; break;
+
         default:
             if (vk >= 'A' && vk <= 'Z') {
                 static char letter[2];
@@ -159,7 +201,7 @@ static const char *format_hotkey(UINT modifiers, UINT vk)
 
     return buffer;
 }
-
+   
 static void tray_menu_save(AppContext *context)
 {
     settings_save(&context->state, &context->paths);

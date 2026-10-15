@@ -13,6 +13,7 @@ static DWORD g_firstTapTime = 0;
 static BOOL g_waitingSecondTap = FALSE;
 static DWORD g_lastTapTime = 0;
 static BOOL g_actionDone = FALSE;
+static BOOL g_keyIsDown = FALSE;
 
 void passive_ptt_start_capture(HWND owner)
 {
@@ -103,10 +104,19 @@ PassivePttAction passive_ptt_process_key(
     if (message == WM_KEYDOWN && !isUp) {
         DWORD now = GetTickCount();
 
+        /* Автоповтор при удержании: клавиша ещё не была отпущена */
+        if (g_keyIsDown) {
+            return PASSIVE_ACTION_NONE;
+        }
+
+        g_keyIsDown = TRUE;
+
         if (g_actionDone) {
             return PASSIVE_ACTION_NONE;
         }
 
+        /* Второй тап засчитывается только если клавиша
+           была отпущена после первого тапа */
         if (g_waitingSecondTap &&
             now - g_lastTapTime <= g_windowMs) {
 
@@ -123,12 +133,13 @@ PassivePttAction passive_ptt_process_key(
     }
 
     if (message == WM_KEYUP && isUp) {
+        g_keyIsDown = FALSE;
         g_actionDone = FALSE;
     }
 
     return PASSIVE_ACTION_NONE;
 }
-
+    
 void passive_ptt_load(void)
 {
     /* Подключим к settings.c после первого успешного теста */
