@@ -18,8 +18,8 @@
 
 ### 📥 Прямые ссылки
 
-- [**MicPlus-Setup-1.6.0.exe**](https://github.com/nivemoon/micplus/releases/download/1.6/MicPlus-Setup-1.6.0.exe) — установочная версия 
-- [**MicPlus_1.6.0_Portable.zip**](https://github.com/nivemoon/micplus/releases/download/1.6/MicPlus_1.6.0_Portable.zip) — портативная версия 
+- [**MicPlus-Setup-1.6.1.exe**](https://github.com/nivemoon/micplus/releases/download/1.6/MicPlus-Setup-1.6.1.exe) — установочная версия 
+- [**MicPlus_1.6.1_Portable.zip**](https://github.com/nivemoon/micplus/releases/download/1.6/MicPlus_1.6.1_Portable.zip) — портативная версия 
 
 ### Портативная версия
 1. Скачать архив выше или из [Releases](https://github.com/nivemoon/micplus/releases)
@@ -48,6 +48,11 @@ mingw32-make
 </details>
 
 <img width="527" height="420" alt="MicPlus_J5K129iety" src="https://github.com/user-attachments/assets/7754ab8d-ce36-44b8-ba85-f73000742215" />
+
+## ✅ Фикс v1.6.1
+
+- **Кириллица** устранена в хоткеях, для правильного отображения без кривой кодировки.
+- **Быстрый РТТ** - помимо двойного клика, так же клавиша активировалась при долгом удержании. Больше нет.
 
 
 ## ✅ Что нового в v1.6
