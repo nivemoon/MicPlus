@@ -21,16 +21,6 @@
 - [**MicPlus-Setup-1.7.exe**](https://github.com/nivemoon/MicPlus/releases/download/1.7/MicPlus-Setup-1.7.exe) — установочная версия
 - [**MicPlus_1.7_Portable.zip**](https://github.com/nivemoon/MicPlus/releases/download/1.7/MicPlus_1.7_Portable.zip) — портативная версия
 
-### Портативная версия
-
-1. Скачайте архив выше или из [Releases](https://github.com/nivemoon/MicPlus/releases).
-2. Распакуйте в любую папку.
-3. Запустите `MicPlus.exe`.
-
-### Установочная версия
-
-1. Скачайте установщик выше или из [Releases](https://github.com/nivemoon/MicPlus/releases).
-2. Запустите его и следуйте инструкциям мастера установки.
 <details>
 <summary>🔧 Самостоятельная сборка из исходников</summary>
 
