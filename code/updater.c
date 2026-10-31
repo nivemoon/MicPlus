@@ -4,8 +4,6 @@
 #include "resource.h"
 #include "unicode.h"
 
-#pragma comment(lib, "winhttp")
-
 #define APP_VERSION_MAJOR 1
 #define APP_VERSION_MINOR 5
 #define APP_VERSION_PATCH 0

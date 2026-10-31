@@ -6,10 +6,14 @@
 #include "tray.h"
 #include "passive_ptt.h"
 #include "settings.h"
+#include "voice_activation.h"
 
 #include <stdio.h>
 
 static AppContext *g_hooksContext = NULL;
+static BOOL pttLatched = FALSE;
+
+static void hooks_update_voice_activation(void);
 
 static BOOL hooks_is_key_down(WPARAM message)
 {
@@ -24,8 +28,7 @@ static BOOL hooks_is_key_up(WPARAM message)
 static UINT hooks_get_modifiers(void)
 {
     UINT modifiers = 0;
-    BOOL rightAlt =
-        (GetAsyncKeyState(VK_RMENU) & 0x8000) != 0;
+    BOOL rightAlt = (GetAsyncKeyState(VK_RMENU) & 0x8000) != 0;
 
     if (GetAsyncKeyState(VK_CONTROL) & 0x8000) {
         modifiers |= MOD_CONTROL;
@@ -35,9 +38,6 @@ static UINT hooks_get_modifiers(void)
         modifiers |= MOD_ALT;
     }
 
-    /* Правый Alt (AltGr) в русской раскладке
-       Windows видит как Ctrl+Alt — убираем Ctrl,
-       чтобы правый Alt работал как обычный Alt. */
     if (rightAlt) {
         modifiers &= ~MOD_CONTROL;
     }
@@ -53,16 +53,18 @@ static BOOL hooks_set_mic_state(int mute)
 {
     AppContext *context = g_hooksContext;
 
-    if (!context) {
+    if (!context || !context->state.hMainWnd) {
         return FALSE;
     }
 
-    if (!microphone_run_ctl(context->paths.exePath, mute)) {
-        return FALSE;
-    }
+    PostMessage(
+        context->state.hMainWnd,
+        WM_APP_MIC_STATE,
+        (WPARAM)mute,
+        0
+    );
 
     context->state.muted = mute ? 1 : 0;
-    tray_update_tooltip(&context->state);
 
     return TRUE;
 }
@@ -84,31 +86,72 @@ static void hooks_play_ptt_sound(int start)
     );
 }
 
-static void hooks_play_mic_sound(int mute)
+static void hooks_update_ptt_state(AppState *state)
 {
-    AppContext *context = g_hooksContext;
+    BOOL active = state->pttButtonActive ||
+                  state->pttKeyDown ||
+                  state->voiceActive ||
+                  pttLatched;
 
-    if (!context) {
-        return;
+    if (active && !state->pttActive) {
+        state->pttActive = 1;
+        state->micSoundFromPtt = 1;
+        hooks_set_mic_state(0);
+        hooks_play_ptt_sound(1);
+    } else if (!active && state->pttActive) {
+        state->pttActive = 0;
+        state->micSoundFromPtt = 1;
+        hooks_set_mic_state(1);
+        hooks_play_ptt_sound(0);
     }
+}
 
-    sounds_play_mic(
-        context->paths.exePath,
-        sounds_get_directory(&context->state),
-        mute ? context->state.micSoundOff : context->state.micSoundOn,
-        context->state.enableMicSounds,
-        context->state.soundVolume
-    );
+static void hooks_voice_activation_callback(BOOL active)
+{
+    AppState *state = &g_hooksContext->state;
+
+    state->voiceActive = active ? 1 : 0;
+    hooks_update_ptt_state(state);
+}
+
+static void hooks_update_voice_activation(void)
+{
+    AppState *state = &g_hooksContext->state;
+    BOOL shouldRun = state->pttMode &&
+                     state->voiceActivationEnabled;
+    BOOL running = voice_activation_is_running();
+
+    if (shouldRun && !running) {
+        voice_activation_start();
+
+        voice_activation_set_threshold(
+            state->voiceThresholdX1000 / 1000.0);
+        voice_activation_set_hangover_ms(
+            (DWORD)state->voiceHangoverMs);
+
+        PostMessage(
+            state->hMainWnd,
+            WM_APP_VAD_STATE,
+            (WPARAM)1,
+            0
+        );
+    } else if (!shouldRun && running) {
+        voice_activation_stop();
+
+        PostMessage(
+            state->hMainWnd,
+            WM_APP_VAD_STATE,
+            (WPARAM)0,
+            0
+        );
+    }
 }
 
 static void hooks_toggle_mic(void)
 {
     AppState *state = &g_hooksContext->state;
 
-    if (hooks_set_mic_state(!state->muted)) {
-        hooks_play_mic_sound(state->muted);
-        tray_show_mic_balloon(state, state->muted);
-    }
+    hooks_set_mic_state(!state->muted);
 }
 
 LRESULT CALLBACK hooks_mouse_proc(
@@ -131,12 +174,14 @@ LRESULT CALLBACK hooks_mouse_proc(
 
             if (button == g_hooksContext->state.pttButton) {
                 if (wParam == WM_XBUTTONDOWN) {
-                    hooks_set_mic_state(0);
-                    hooks_play_ptt_sound(1);
+                    g_hooksContext->state.pttButtonActive = 1;
                 } else {
-                    hooks_set_mic_state(1);
-                    hooks_play_ptt_sound(0);
+                    g_hooksContext->state.pttButtonActive = 0;
                 }
+
+                hooks_update_ptt_state(&g_hooksContext->state);
+
+                return 1;
             }
         }
     }
@@ -147,6 +192,18 @@ LRESULT CALLBACK hooks_mouse_proc(
         wParam,
         lParam
     );
+}
+
+void hooks_ptt_unlatch(void)
+{
+    if (!g_hooksContext) {
+        return;
+    }
+
+    if (pttLatched) {
+        pttLatched = FALSE;
+        hooks_update_ptt_state(&g_hooksContext->state);
+    }
 }
 
 static void hooks_process_ptt_mode_chord(
@@ -179,6 +236,8 @@ static void hooks_process_ptt_mode_chord(
             state->pttModeChordKeyDown = 1;
 
             state->pttMode = !state->pttMode;
+            hooks_update_voice_activation();
+
             tray_show_ptt_mode_balloon(state, state->pttMode);
             sounds_play_ptt_mode(
                 g_hooksContext->paths.exePath,
@@ -211,11 +270,8 @@ static void hooks_process_mic_chord(
     static BOOL firstKeyDown = FALSE;
     static BOOL secondKeyDown = FALSE;
 
-    UINT firstKey;
-    UINT secondKey;
-
-    firstKey = state->vkMicChordFirst;
-    secondKey = state->vkMicChordSecond;
+    UINT firstKey = state->vkMicChordFirst;
+    UINT secondKey = state->vkMicChordSecond;
 
     if (firstKey == 0 || secondKey == 0) {
         firstKeyDown = FALSE;
@@ -231,8 +287,7 @@ static void hooks_process_mic_chord(
             secondKeyDown = TRUE;
         }
 
-        if (firstKeyDown &&
-            secondKeyDown &&
+        if (firstKeyDown && secondKeyDown &&
             !state->micChordKeyDown) {
             state->micChordKeyDown = 1;
             hooks_toggle_mic();
@@ -256,8 +311,13 @@ LRESULT CALLBACK hooks_keyboard_proc(
     LPARAM lParam)
 {
     static int soundKeyDown = 0;
-    static BOOL altKeyDown = FALSE;
     static BOOL pttModeKeyDown = FALSE;
+    static BOOL duskKeyDown = FALSE;
+    static BOOL voiceChordVDown = FALSE;
+    static BOOL voiceChordUDown = FALSE;
+    static BOOL voiceChordFired = FALSE;
+
+    static BOOL emergencyKeyDown = FALSE;
 
     KBDLLHOOKSTRUCT *keyboardData;
     AppState *state;
@@ -276,32 +336,15 @@ LRESULT CALLBACK hooks_keyboard_proc(
 
     keyboardData = (KBDLLHOOKSTRUCT *)lParam;
     state = &g_hooksContext->state;
-	    modifiers = hooks_get_modifiers();
-    
-    if (passive_ptt_is_capturing()) {
-        passive_ptt_process_key(keyboardData, wParam);
-        return 1;
-    }
+    modifiers = hooks_get_modifiers();
 
     if (passive_ptt_process_key(keyboardData, wParam) ==
-    PASSIVE_ACTION_TOGGLE_MIC) {
-    if (state->pttMode) {
-        int wasMuted = state->muted;
-
-        if (hooks_set_mic_state(!wasMuted)) {
-            hooks_play_ptt_sound(wasMuted ? 1 : 0);
-            tray_show_mic_balloon(state, state->muted);
-        }
-    }
-}
-
-    if (keyboardData->vkCode == VK_LMENU ||
-        keyboardData->vkCode == VK_RMENU ||
-        keyboardData->vkCode == VK_MENU) {
-        altKeyDown = hooks_is_key_down(wParam);
+        PASSIVE_ACTION_TOGGLE_MIC) {
+        pttLatched = !pttLatched;
+        hooks_update_ptt_state(state);
     }
 
-                 if (keyboardData->vkCode == state->vkPttModeToggle) {
+    if (keyboardData->vkCode == state->vkPttModeToggle) {
         if (hooks_is_key_down(wParam)) {
             UINT currentModifiers = hooks_get_modifiers();
 
@@ -310,15 +353,16 @@ LRESULT CALLBACK hooks_keyboard_proc(
                 pttModeKeyDown = TRUE;
 
                 state->pttMode = !state->pttMode;
+                hooks_update_voice_activation();
 
                 tray_show_ptt_mode_balloon(state, state->pttMode);
-               sounds_play_ptt_mode(
-    g_hooksContext->paths.exePath,
-    sounds_get_directory(state),
-    state->pttMode ? "ptt_mode_on.mp3" : "ptt_mode_off.mp3",
-    state->enablePTTModeSounds,
-    state->soundVolume
-);
+                sounds_play_ptt_mode(
+                    g_hooksContext->paths.exePath,
+                    sounds_get_directory(state),
+                    state->pttMode ? "ptt_mode_on.mp3" : "ptt_mode_off.mp3",
+                    state->enablePTTModeSounds,
+                    state->soundVolume
+                );
                 settings_save(state, &g_hooksContext->paths);
                 tray_update_tooltip(state);
 
@@ -354,22 +398,19 @@ LRESULT CALLBACK hooks_keyboard_proc(
 
     if (state->vkPttCustom != 0 &&
         state->pttMode &&
-        keyboardData->vkCode == state->vkPttCustom) {
+        keyboardData->vkCode == state->vkPttCustom &&
+        !(passive_ptt_is_enabled() &&
+          passive_ptt_get_double_vk() ==
+              keyboardData->vkCode)) {
         if (hooks_is_key_down(wParam)) {
             if (!state->pttKeyDown) {
                 state->pttKeyDown = 1;
-
-                if (hooks_set_mic_state(0)) {
-                    hooks_play_ptt_sound(1);
-                }
+                hooks_update_ptt_state(state);
             }
         } else if (hooks_is_key_up(wParam)) {
             if (state->pttKeyDown) {
                 state->pttKeyDown = 0;
-
-                if (hooks_set_mic_state(1)) {
-                    hooks_play_ptt_sound(0);
-                }
+                hooks_update_ptt_state(state);
             }
         }
     }
@@ -390,13 +431,6 @@ LRESULT CALLBACK hooks_keyboard_proc(
             keyboardData->vkCode,
             wParam
         );
-
-        return CallNextHookEx(
-            state->hKeyboardHook,
-            nCode,
-            wParam,
-            lParam
-        );
     }
 
     if (keyboardData->vkCode == state->vkToggle) {
@@ -408,6 +442,125 @@ LRESULT CALLBACK hooks_keyboard_proc(
             }
         } else if (hooks_is_key_up(wParam)) {
             state->toggleKeyDown = 0;
+        }
+    }
+
+    /* Голосовой режим: V+U одновременно (тогл) */
+    if (keyboardData->vkCode == 'V') {
+        if (hooks_is_key_down(wParam)) {
+            voiceChordVDown = TRUE;
+        } else {
+            voiceChordVDown = FALSE;
+            voiceChordFired = FALSE;
+        }
+    }
+
+    if (keyboardData->vkCode == 'U') {
+        if (hooks_is_key_down(wParam)) {
+            voiceChordUDown = TRUE;
+        } else {
+            voiceChordUDown = FALSE;
+            voiceChordFired = FALSE;
+        }
+    }
+
+    if (voiceChordVDown &&
+        voiceChordUDown &&
+        !voiceChordFired) {
+
+        voiceChordFired = TRUE;
+
+        state->voiceActivationEnabled =
+            !state->voiceActivationEnabled;
+
+        hooks_update_voice_activation();
+        settings_save(state, &g_hooksContext->paths);
+        tray_update_tooltip(state);
+    }
+
+    /* DUSK-хоткеи: панель / список / вывод / ввод */
+    if (hooks_is_key_down(wParam) && !duskKeyDown) {
+        UINT vk = keyboardData->vkCode;
+
+        if (state->panelHotkeyVk != 0 &&
+            vk == state->panelHotkeyVk &&
+            modifiers == state->panelHotkeyMods) {
+            duskKeyDown = TRUE;
+
+            PostMessage(
+                state->hMainWnd,
+                WM_APP_DUSK_PANEL,
+                0,
+                0
+            );
+
+            return 1;
+        }
+
+        if (state->listHotkeyVk != 0 &&
+            vk == state->listHotkeyVk &&
+            modifiers == state->listHotkeyMods) {
+            duskKeyDown = TRUE;
+
+            PostMessage(
+                state->hMainWnd,
+                WM_APP_DUSK_LIST,
+                0,
+                0
+            );
+
+            return 1;
+        }
+
+        if (state->outputHotkeyVk != 0 &&
+            vk == state->outputHotkeyVk &&
+            modifiers == state->outputHotkeyMods) {
+            duskKeyDown = TRUE;
+
+            PostMessage(
+                state->hMainWnd,
+                WM_APP_DUSK_OUTPUT,
+                0,
+                0
+            );
+
+            return 1;
+        }
+
+        if (state->inputHotkeyVk != 0 &&
+            vk == state->inputHotkeyVk &&
+            modifiers == state->inputHotkeyMods) {
+            duskKeyDown = TRUE;
+
+            PostMessage(
+                state->hMainWnd,
+                WM_APP_DUSK_INPUT,
+                0,
+                0
+            );
+
+            return 1;
+        }
+    } else if (hooks_is_key_up(wParam)) {
+        duskKeyDown = FALSE;
+    }
+
+    /* Аварийное отключение: Ctrl+Alt+F10 (глобально) */
+    if (keyboardData->vkCode == VK_F10) {
+        if (hooks_is_key_down(wParam) &&
+            modifiers == (MOD_CONTROL | MOD_ALT) &&
+            !emergencyKeyDown) {
+
+            emergencyKeyDown = TRUE;
+
+            PostMessage(
+                state->hMainWnd,
+                WM_APP_EMERGENCY,
+                0,
+                0
+            );
+        } else if (hooks_is_key_up(wParam)) {
+            emergencyKeyDown = FALSE;
         }
     }
 
@@ -425,9 +578,8 @@ BOOL hooks_install(AppContext *context)
     DWORD mouseError = 0;
     DWORD keyboardError = 0;
 
-    
     if (!context || !context->state.hInst) {
-                return FALSE;
+        return FALSE;
     }
 
     g_hooksContext = context;
@@ -436,20 +588,20 @@ BOOL hooks_install(AppContext *context)
     state->hMouseHook = SetWindowsHookExA(
         WH_MOUSE_LL,
         hooks_mouse_proc,
-        state->hInst,
+        GetModuleHandle(NULL),
+        0
+    );
+
+    state->hKeyboardHook = SetWindowsHookExA(
+        WH_KEYBOARD_LL,
+        hooks_keyboard_proc,
+        GetModuleHandle(NULL),
         0
     );
 
     if (!state->hMouseHook) {
         mouseError = GetLastError();
     }
-
-    state->hKeyboardHook = SetWindowsHookExA(
-        WH_KEYBOARD_LL,
-        hooks_keyboard_proc,
-        state->hInst,
-        0
-    );
 
     if (!state->hKeyboardHook) {
         keyboardError = GetLastError();
@@ -462,22 +614,36 @@ BOOL hooks_install(AppContext *context)
             debug,
             sizeof(debug),
             "Mouse hook: %p (err %lu)\nKeyboard hook: %p (err %lu)",
-            (void *)state->hMouseHook,
+            (void*)state->hMouseHook,
             (unsigned long)mouseError,
-            (void *)state->hKeyboardHook,
+            (void*)state->hKeyboardHook,
             (unsigned long)keyboardError
         );
 
-        
+        MessageBoxA(
+            NULL,
+            debug,
+            "MicPlus hooks debug",
+            MB_OK | MB_ICONERROR
+        );
+
         hooks_uninstall(context);
         return FALSE;
     }
 
+    voice_activation_set_callback(
+        hooks_voice_activation_callback
+    );
+
+    hooks_update_voice_activation();
+
     return TRUE;
 }
 
-  void hooks_uninstall(AppContext *context)
+void hooks_uninstall(AppContext *context)
 {
+    voice_activation_stop();
+
     if (!context) {
         return;
     }
@@ -495,4 +661,15 @@ BOOL hooks_install(AppContext *context)
     if (g_hooksContext == context) {
         g_hooksContext = NULL;
     }
+}
+
+void hooks_set_voice_activation(int enabled)
+{
+    AppState *state = &g_hooksContext->state;
+
+    state->voiceActivationEnabled = enabled ? 1 : 0;
+    hooks_update_voice_activation();
+
+    settings_save(state, &g_hooksContext->paths);
+    tray_update_tooltip(state);
 }

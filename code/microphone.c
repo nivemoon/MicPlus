@@ -11,7 +11,7 @@ static BOOL microphone_build_ctl_path(
     char *outPath,
     int outSize)
 {
-    char baseDirectory[MAX_PATH];
+    char baseDirectory[600];
     char *slash;
 
     if (!exePath ||
@@ -53,9 +53,10 @@ BOOL microphone_run_ctl(
     const char *exePath,
     int mute)
 {
-    char micCtlPath[MAX_PATH];
-    char arguments[8];
-    HINSTANCE result;
+    char micCtlPath[1320];
+    char commandLine[1340];
+    STARTUPINFOA si;
+    PROCESS_INFORMATION pi;
 
     if (!microphone_build_ctl_path(
             exePath,
@@ -65,20 +66,38 @@ BOOL microphone_run_ctl(
     }
 
     snprintf(
-        arguments,
-        sizeof(arguments),
-        "%d",
+        commandLine,
+        sizeof(commandLine),
+        "\"%s\" %d",
+        micCtlPath,
         mute ? 1 : 0
     );
 
-    result = ShellExecuteA(
-        NULL,
-        "open",
-        micCtlPath,
-        arguments,
-        NULL,
-        SW_HIDE
-    );
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
 
-    return (INT_PTR)result > 32;
+    ZeroMemory(&pi, sizeof(pi));
+
+    if (!CreateProcessA(
+            NULL,
+            commandLine,
+            NULL,
+            NULL,
+            FALSE,
+            0,
+            NULL,
+            NULL,
+            &si,
+            &pi)) {
+        return FALSE;
+    }
+
+    /* Не ждём завершения — процесс работает сам.
+       Закрываем хендлы, чтобы не текли. */
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
+    return TRUE;
 }

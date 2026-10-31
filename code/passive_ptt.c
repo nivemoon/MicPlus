@@ -1,10 +1,13 @@
 ﻿#include <windows.h>
 
 #include "passive_ptt.h"
+#include "micplus_ini.h"
+
+#include <stdio.h>
 
 static PassivePttMode g_mode = PASSIVE_MODE_OFF;
 static UINT g_doubleVk = 0;
-static DWORD g_windowMs = 300;
+static DWORD g_windowMs = 500;
 
 static BOOL g_capturing = FALSE;
 static UINT g_captureFirstVk = 0;
@@ -15,20 +18,52 @@ static DWORD g_lastTapTime = 0;
 static BOOL g_actionDone = FALSE;
 static BOOL g_keyIsDown = FALSE;
 
+static BOOL passive_ptt_is_russian(void)
+{
+    return PRIMARYLANGID(GetKeyboardLayout(0)) == LANG_RUSSIAN;
+}
+
 void passive_ptt_start_capture(HWND owner)
 {
+    if (passive_ptt_is_russian()) {
         MessageBoxW(
-        owner,
-        L"Нажмите одну и ту же клавишу два раза подряд.\n\n"
-        L"Например: Q, Q\n\n"
-        L"Быстрый РТТ срабатывает только при включённом режиме РТТ.",
-        L"Быстрый РТТ",
-        MB_OK | MB_ICONINFORMATION
-    );
+            owner,
+            L"Нажмите клавишу для быстрого РТТ.\n\n"
+            L"Например: Q\n\n"
+            L"Двойной клик срабатывает только при включённом режиме РТТ.",
+            L"Двуклик",
+            MB_OK | MB_ICONINFORMATION
+        );
+    } else {
+        MessageBoxW(
+            owner,
+            L"Press a key to assign double-click PTT.\n\n"
+            L"For example: Q\n\n"
+            L"Double-click PTT only works when PTT mode is enabled.",
+            L"Double-click PTT",
+            MB_OK | MB_ICONINFORMATION
+        );
+    }
 
     g_capturing = TRUE;
     g_captureFirstVk = 0;
     g_firstTapTime = 0;
+}
+
+void passive_ptt_set_double_vk(UINT virtualKey)
+{
+    g_mode = PASSIVE_MODE_DOUBLE;
+    g_doubleVk = virtualKey;
+
+    g_capturing = FALSE;
+    g_captureFirstVk = 0;
+    g_firstTapTime = 0;
+
+    g_waitingSecondTap = FALSE;
+    g_lastTapTime = 0;
+    g_actionDone = FALSE;
+
+    passive_ptt_save();
 }
 
 BOOL passive_ptt_is_capturing(void)
@@ -48,14 +83,43 @@ static PassivePttAction passive_ptt_finish_capture(
 
     passive_ptt_save();
 
+    if (passive_ptt_is_russian()) {
         MessageBoxW(
-        NULL,
-        L"Пассивный РТТ назначен.",
-        L"Готово",
-        MB_OK | MB_ICONINFORMATION
-    );
+            NULL,
+            L"Двойной клик назначен.",
+            L"Готово",
+            MB_OK | MB_ICONINFORMATION
+        );
+    } else {
+        MessageBoxW(
+            NULL,
+            L"Double-click PTT assigned.",
+            L"Done",
+            MB_OK | MB_ICONINFORMATION
+        );
+    }
 
     return PASSIVE_ACTION_NONE;
+}
+
+void passive_ptt_load(void)
+{
+    g_doubleVk = (UINT)GetPrivateProfileIntA(
+        "General", "QuickPttVK", 0, IniPath());
+
+    g_mode = (g_doubleVk != 0)
+        ? PASSIVE_MODE_DOUBLE
+        : PASSIVE_MODE_OFF;
+}
+
+void passive_ptt_save(void)
+{
+    char buffer[32];
+
+    snprintf(buffer, sizeof(buffer), "%u", g_doubleVk);
+
+    WritePrivateProfileStringA(
+        "General", "QuickPttVK", buffer, IniPath());
 }
 
 PassivePttAction passive_ptt_process_key(
@@ -70,7 +134,6 @@ PassivePttAction passive_ptt_process_key(
 
     isUp = (key->flags & LLKHF_UP) != 0;
 
-    /* Режим назначения пассивного PTT */
     if (g_capturing) {
         DWORD now;
 
@@ -95,7 +158,6 @@ PassivePttAction passive_ptt_process_key(
         return PASSIVE_ACTION_NONE;
     }
 
-    /* Обычная работа пассивного PTT */
     if (g_mode != PASSIVE_MODE_DOUBLE ||
         key->vkCode != g_doubleVk) {
         return PASSIVE_ACTION_NONE;
@@ -104,7 +166,6 @@ PassivePttAction passive_ptt_process_key(
     if (message == WM_KEYDOWN && !isUp) {
         DWORD now = GetTickCount();
 
-        /* Автоповтор при удержании: клавиша ещё не была отпущена */
         if (g_keyIsDown) {
             return PASSIVE_ACTION_NONE;
         }
@@ -115,8 +176,6 @@ PassivePttAction passive_ptt_process_key(
             return PASSIVE_ACTION_NONE;
         }
 
-        /* Второй тап засчитывается только если клавиша
-           была отпущена после первого тапа */
         if (g_waitingSecondTap &&
             now - g_lastTapTime <= g_windowMs) {
 
@@ -139,16 +198,7 @@ PassivePttAction passive_ptt_process_key(
 
     return PASSIVE_ACTION_NONE;
 }
-    
-void passive_ptt_load(void)
-{
-    /* Подключим к settings.c после первого успешного теста */
-}
 
-void passive_ptt_save(void)
-{
-    /* Подключим к settings.c после первого успешного теста */
-}
 BOOL passive_ptt_is_enabled(void)
 {
     return g_mode == PASSIVE_MODE_DOUBLE &&

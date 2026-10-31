@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static void key_trim_spaces(char *text)
+ static void key_trim_spaces(char *text)
 {
     size_t length;
     char *start = text;
@@ -136,7 +136,7 @@ void key_get_display_name(
         case VK_OEM_MINUS: key_copy_text(out, outSize, "-");  return;
         case VK_OEM_PERIOD:key_copy_text(out, outSize, ".");  return;  /* ю */
         case VK_OEM_2:     key_copy_text(out, outSize, "/");  return;  /* . */
-        case VK_OEM_3:     key_copy_text(out, outSize, "`");  return;  /* ё */
+        case VK_OEM_3:     key_copy_text(out, outSize, "~");  return;  /* ё */
         case VK_OEM_4:     key_copy_text(out, outSize, "[");  return;  /* х */
         case VK_OEM_5:     key_copy_text(out, outSize, "\\"); return;
         case VK_OEM_6:     key_copy_text(out, outSize, "]");  return;  /* ъ */
@@ -228,6 +228,10 @@ void key_build_hotkey_name(
     char *out,
     int outSize)
 {
+	    if (virtualKey == 0) {
+        key_copy_text(out, outSize, "без хоткея");
+        return;
+    }
     char result[128];
     char keyName[64];
 
@@ -351,7 +355,7 @@ void key_build_chord_name(
     snprintf(
         out,
         outSize,
-        "%s + %s",
+        "%s+%s",
         firstName,
         secondName
     );

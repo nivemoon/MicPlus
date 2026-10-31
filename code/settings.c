@@ -1,5 +1,6 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
 
+#include "micplus_ini.h"
 #include "settings.h"
 #include <string.h>
 #include <stdio.h>
@@ -87,8 +88,8 @@ static void settings_read_string(
         iniPath
     );
 }
-	
-	static void settings_fix_sound_extensions(AppState *state)
+
+static void settings_fix_sound_extensions(AppState *state)
 {
     char *fields[] = {
         state->micSoundOn,
@@ -164,55 +165,56 @@ void settings_load(
     const AppPaths *paths)
 {
     char language[8];
+    const char *ini = IniPath();
 
-    if (!state ||
-        !paths ||
-        paths->iniPath[0] == '\0') {
+    (void)paths;
+
+    if (!state || ini[0] == '\0') {
         return;
     }
 
-        state->pttMode = settings_read_bool(
+    state->pttMode = settings_read_bool(
         "General",
         "PTTMode",
         1,
-        paths->iniPath
+        ini
     );
 
     state->vkPttModeChordFirst = settings_read_uint(
         "General",
         "PttModeChordFirst",
         0,
-        paths->iniPath
+        ini
     );
 
     state->vkPttModeChordSecond = settings_read_uint(
         "General",
         "PttModeChordSecond",
         0,
-        paths->iniPath
+        ini
     );
 
     state->pttModeChordKeyDown = 0;
 
-	state->vkPttModeToggle = settings_read_uint(
+    state->vkPttModeToggle = settings_read_uint(
         "General",
         "PttModeToggleVK",
         'P',
-        paths->iniPath
+        ini
     );
 
     state->modPttModeToggle = settings_read_uint(
         "General",
         "PttModeToggleMods",
         MOD_ALT,
-        paths->iniPath
+        ini
     );
 
     state->vkToggle = settings_read_uint(
         "General",
         "ToggleVK",
         VK_F10,
-        paths->iniPath
+        ini
     );
 
     if (state->vkToggle == 0) {
@@ -223,40 +225,96 @@ void settings_load(
         "General",
         "ToggleMods",
         0,
-        paths->iniPath
+        ini
     );
 
     state->vkMicChordFirst = settings_read_uint(
         "General",
         "MicChordFirst",
         0,
-        paths->iniPath
+        ini
     );
 
     state->vkMicChordSecond = settings_read_uint(
         "General",
         "MicChordSecond",
         0,
-        paths->iniPath
+        ini
     );
 
     state->micChordKeyDown = 0;
 
-    state->pttButton =
-        settings_read_uint(
-            "General",
-            "PTTButton",
-            2,
-            paths->iniPath
-        ) == 1
-            ? XBUTTON1
-            : XBUTTON2;
+    {
+        UINT savedButton = settings_read_uint(
+            "General", "PTTButton", 2, ini);
+
+        state->pttButton =
+            savedButton == 1 ? XBUTTON1 :
+            savedButton == 2 ? XBUTTON2 : 0;
+    }
 
     state->vkPttCustom = settings_read_uint(
         "General",
         "PttCustomVK",
         0,
-        paths->iniPath
+        ini
+    );
+
+    /* --- Хоткеи DUSK: панель / вывод / список / ввод --- */
+    state->panelHotkeyMods = settings_read_uint(
+        "General",
+        "PanelHotkeyMods",
+        MOD_CONTROL | MOD_ALT | MOD_SHIFT,
+        ini
+    );
+
+    state->panelHotkeyVk = settings_read_uint(
+        "General",
+        "PanelHotkeyVK",
+        'D',
+        ini
+    );
+
+    state->outputHotkeyMods = settings_read_uint(
+        "General",
+        "OutputHotkeyMods",
+        MOD_CONTROL | MOD_ALT | MOD_SHIFT,
+        ini
+    );
+
+    state->outputHotkeyVk = settings_read_uint(
+        "General",
+        "OutputHotkeyVK",
+        'S',
+        ini
+    );
+
+    state->listHotkeyMods = settings_read_uint(
+        "General",
+        "ListHotkeyMods",
+        MOD_CONTROL | MOD_ALT | MOD_SHIFT,
+        ini
+    );
+
+    state->listHotkeyVk = settings_read_uint(
+        "General",
+        "ListHotkeyVK",
+        'U',
+        ini
+    );
+
+    state->inputHotkeyMods = settings_read_uint(
+        "General",
+        "InputHotkeyMods",
+        MOD_CONTROL | MOD_ALT | MOD_SHIFT,
+        ini
+    );
+
+    state->inputHotkeyVk = settings_read_uint(
+        "General",
+        "InputHotkeyVK",
+        'K',
+        ini
     );
 
     settings_read_string(
@@ -265,7 +323,7 @@ void settings_load(
         "ru",
         language,
         sizeof(language),
-        paths->iniPath
+        ini
     );
 
     state->lang =
@@ -277,7 +335,7 @@ void settings_load(
         "General",
         "SoundToggleVK",
         VK_F9,
-        paths->iniPath
+        ini
     );
 
     if (state->vkSoundToggle == 0) {
@@ -290,97 +348,76 @@ void settings_load(
         "General",
         "AutoStart",
         0,
-        paths->iniPath
+        ini
     );
 
     state->enableMicSounds = settings_read_bool(
         "General",
         "EnableMicSounds",
         1,
-        paths->iniPath
+        ini
     );
 
-state->soundVolume = (int)settings_read_uint(
-    "General",
-    "SoundVolume",
-    50,
-    paths->iniPath
-);
-
-state->soundScheme = (int)settings_read_uint(
-    "General",
-    "SoundScheme",
-    0,
-    paths->iniPath
-);
-
-if (state->soundScheme != 0 &&
-    state->soundScheme != 1) {
-    state->soundScheme = 0;
-}
+    state->soundVolume = (int)settings_read_uint(
+        "General",
+        "SoundVolume",
+        40,
+        ini
+    );
 
     state->enablePTTSounds = settings_read_bool(
         "General",
         "EnablePTTSounds",
         1,
-        paths->iniPath
+        ini
     );
 
-state->enablePTTModeSounds = settings_read_bool(
-    "General",
-    "EnablePTTModeSounds",
-    1,
-    paths->iniPath
-);
+    state->enablePTTModeSounds = settings_read_bool(
+        "General",
+        "EnablePTTModeSounds",
+        1,
+        ini
+    );
+
+    state->enableVolumeTickSound = settings_read_bool(
+        "Sounds",
+        "VolumeTick",
+        1,
+        ini
+    );
 
     state->enableBalloonTips = settings_read_bool(
         "General",
         "EnableBalloonTips",
-        1,
-        paths->iniPath
+        0,
+        ini
     );
 
-    settings_read_string(
-        "General",
-        "MicSoundOn",
-        "mic_on.mp3",
-        state->micSoundOn,
-        sizeof(state->micSoundOn),
-        paths->iniPath
-    );
+    if (!state->micSoundOn[0]) {
+        lstrcpynA(
+            state->micSoundOn,
+            "mic_on.mp3",
+            sizeof(state->micSoundOn)
+        );
+    }
 
-    settings_read_string(
-        "General",
-        "MicSoundOff",
-        "mic_off.mp3",
-        state->micSoundOff,
-        sizeof(state->micSoundOff),
-        paths->iniPath
-    );
+    if (!state->micSoundOff[0]) {
+        lstrcpynA(state->micSoundOff, "mic_off.mp3", sizeof(state->micSoundOff));
+    }
 
-    settings_read_string(
-        "General",
-        "PTTSoundOn",
-        "ptt_start.mp3",
-        state->pttSoundOn,
-        sizeof(state->pttSoundOn),
-        paths->iniPath
-    );
+    if (!state->pttSoundOn[0]) {
+        lstrcpynA(state->pttSoundOn, "ptt_start.mp3", sizeof(state->pttSoundOn));
+    }
 
-    settings_read_string(
-        "General",
-        "PTTSoundOff",
-        "ptt_end.mp3",
-        state->pttSoundOff,
-        sizeof(state->pttSoundOff),
-        paths->iniPath
-    );
+    if (!state->pttSoundOff[0]) {
+        lstrcpynA(state->pttSoundOff, "ptt_end.mp3", sizeof(state->pttSoundOff));
+    }
 
     state->iconMode = GetPrivateProfileIntA(
         "MicPlus",
         "IconMode",
         0,
-        paths->iniPath
+        ini
     );
 
     if (state->iconMode < 0 ||
@@ -388,11 +425,18 @@ state->enablePTTModeSounds = settings_read_bool(
         state->iconMode = 0;
     }
 
+    state->useAudioIcon = settings_read_bool(
+        "MicPlus",
+        "UseAudioIcon",
+        0,
+        ini
+    );
+
     state->menuTheme = GetPrivateProfileIntA(
         "MicPlus",
         "MenuTheme",
         0,
-        paths->iniPath
+        ini
     );
 
     if (state->menuTheme < 0 ||
@@ -400,18 +444,88 @@ state->enablePTTModeSounds = settings_read_bool(
         state->menuTheme = 0;
     }
 
-        state->hideTrayIcon = settings_read_bool(
+    state->leftClickAction = GetPrivateProfileIntA(
+        "MicPlus",
+        "LeftClickAction",
+        1,
+        ini
+    );
+
+    if (state->leftClickAction < 0 ||
+        state->leftClickAction > 2) {
+        state->leftClickAction = 1;
+    }
+
+    state->middleClickAction = GetPrivateProfileIntA(
+        "MicPlus",
+        "MiddleClickAction",
+        0,
+        ini
+    );
+
+    if (state->middleClickAction < 0 ||
+        state->middleClickAction > 2) {
+        state->middleClickAction = 0;
+    }
+
+    state->scrollAction = GetPrivateProfileIntA(
+        "MicPlus",
+        "ScrollAction",
+        2,
+        ini
+    );
+
+    if (state->scrollAction < 0 ||
+        state->scrollAction > 2) {
+        state->scrollAction = 2;
+    }
+
+    state->hideTrayIcon = settings_read_bool(
         "General",
         "HideTrayIcon",
         0,
-        paths->iniPath
+        ini
     );
 
-	    state->muted = settings_read_bool(
+    state->muted = settings_read_bool(
         "General",
         "Muted",
         0,
-        paths->iniPath
+        ini
+    );
+
+    state->voiceActivationEnabled = settings_read_bool(
+        "General",
+        "VoiceActivation",
+        0,
+        ini
+    );
+
+    state->voiceHangoverMs = GetPrivateProfileIntA(
+        "MicPlus", "VoiceHangoverMs", 500, ini);
+
+    state->voiceThresholdX1000 = GetPrivateProfileIntA(
+        "MicPlus", "VoiceThresholdX1000", 20, ini);
+
+    state->hideMicSelection = settings_read_bool(
+        "General",
+        "HideMicSelection",
+        0,
+        ini
+    );
+
+    state->keepHeadphonesAwake = settings_read_bool(
+        "General",
+        "KeepHeadphonesAwake",
+        0,
+        ini
+    );
+
+    state->keepAliveBalloonShown = settings_read_bool(
+        "General",
+        "KeepAliveBalloonShown",
+        0,
+        ini
     );
 
     settings_fix_sound_extensions(state);
@@ -421,61 +535,137 @@ void settings_save(
     const AppState *state,
     const AppPaths *paths)
 {
-    if (!state ||
-        !paths ||
-        paths->iniPath[0] == '\0') {
+    const char *ini = IniPath();
+
+    (void)paths;
+
+    if (!state || ini[0] == '\0') {
+        return;
+    }
+
+    if (IniIsDeleted()) {
         return;
     }
 
     settings_write_bool(
         "General",
+        "KeepHeadphonesAwake",
+        state->keepHeadphonesAwake,
+        ini
+    );
+
+    settings_write_bool(
+        "General",
+        "KeepAliveBalloonShown",
+        state->keepAliveBalloonShown,
+        ini
+    );
+
+    settings_write_bool(
+        "General",
         "PTTMode",
         state->pttMode,
-        paths->iniPath
+        ini
     );
 
     settings_write_uint(
         "General",
         "ToggleVK",
         state->vkToggle,
-        paths->iniPath
+        ini
     );
 
     settings_write_uint(
         "General",
         "ToggleMods",
         state->modToggle,
-        paths->iniPath
+        ini
     );
 
     settings_write_uint(
         "General",
         "MicChordFirst",
         state->vkMicChordFirst,
-        paths->iniPath
+        ini
     );
 
     settings_write_uint(
         "General",
         "MicChordSecond",
         state->vkMicChordSecond,
-        paths->iniPath
+        ini
     );
 
     settings_write_uint(
         "General",
         "PTTButton",
-        state->pttButton == XBUTTON1
-            ? 1
-            : 2,
-        paths->iniPath
+        state->pttButton == XBUTTON1 ? 1 :
+        state->pttButton == XBUTTON2 ? 2 : 0,
+        ini
     );
 
     settings_write_uint(
         "General",
         "PttCustomVK",
         state->vkPttCustom,
-        paths->iniPath
+        ini
+    );
+
+    /* --- Хоткеи DUSK: панель / вывод / список / ввод --- */
+    settings_write_uint(
+        "General",
+        "PanelHotkeyMods",
+        state->panelHotkeyMods,
+        ini
+    );
+
+    settings_write_uint(
+        "General",
+        "PanelHotkeyVK",
+        state->panelHotkeyVk,
+        ini
+    );
+
+    settings_write_uint(
+        "General",
+        "OutputHotkeyMods",
+        state->outputHotkeyMods,
+        ini
+    );
+
+    settings_write_uint(
+        "General",
+        "OutputHotkeyVK",
+        state->outputHotkeyVk,
+        ini
+    );
+
+    settings_write_uint(
+        "General",
+        "ListHotkeyMods",
+        state->listHotkeyMods,
+        ini
+    );
+
+    settings_write_uint(
+        "General",
+        "ListHotkeyVK",
+        state->listHotkeyVk,
+        ini
+    );
+
+    settings_write_uint(
+        "General",
+        "InputHotkeyMods",
+        state->inputHotkeyMods,
+        ini
+    );
+
+    settings_write_uint(
+        "General",
+        "InputHotkeyVK",
+        state->inputHotkeyVk,
+        ini
     );
 
     settings_write_string(
@@ -484,139 +674,167 @@ void settings_save(
         state->lang == LANG_RU
             ? "ru"
             : "en",
-        paths->iniPath
+        ini
     );
 
     settings_write_uint(
         "General",
         "SoundToggleVK",
         state->vkSoundToggle,
-        paths->iniPath
+        ini
     );
 
     settings_write_uint(
         "General",
         "PttModeToggleVK",
         state->vkPttModeToggle,
-        paths->iniPath
+        ini
     );
 
     settings_write_uint(
         "General",
         "PttModeToggleMods",
         state->modPttModeToggle,
-        paths->iniPath
+        ini
     );
 
     settings_write_uint(
         "General",
         "PttModeChordFirst",
         state->vkPttModeChordFirst,
-        paths->iniPath
+        ini
     );
 
     settings_write_uint(
         "General",
         "PttModeChordSecond",
         state->vkPttModeChordSecond,
-        paths->iniPath
+        ini
     );
 
     settings_write_bool(
         "General",
         "AutoStart",
         state->autoStart,
-        paths->iniPath
+        ini
     );
 
     settings_write_bool(
         "General",
         "EnableMicSounds",
         state->enableMicSounds,
-        paths->iniPath
+        ini
     );
 
-settings_write_uint(
-    "General",
-    "SoundVolume",
-    (UINT)state->soundVolume,
-    paths->iniPath
-);
-
-settings_write_uint(
-    "General",
-    "SoundScheme",
-    (UINT)state->soundScheme,
-    paths->iniPath
-);
+    settings_write_uint(
+        "General",
+        "SoundVolume",
+        (UINT)state->soundVolume,
+        ini
+    );
 
     settings_write_bool(
         "General",
         "EnablePTTSounds",
         state->enablePTTSounds,
-        paths->iniPath
+        ini
+    );
+
+    settings_write_bool(
+        "General",
+        "EnablePTTModeSounds",
+        state->enablePTTModeSounds,
+        ini
+    );
+
+    settings_write_bool(
+        "Sounds",
+        "VolumeTick",
+        state->enableVolumeTickSound,
+        ini
     );
 
     settings_write_bool(
         "General",
         "EnableBalloonTips",
         state->enableBalloonTips,
-        paths->iniPath
+        ini
     );
 
     settings_write_string(
         "General",
         "MicSoundOn",
         state->micSoundOn,
-        paths->iniPath
+        ini
     );
 
     settings_write_string(
         "General",
         "MicSoundOff",
         state->micSoundOff,
-        paths->iniPath
+        ini
     );
 
     settings_write_string(
         "General",
         "PTTSoundOn",
         state->pttSoundOn,
-        paths->iniPath
+        ini
     );
 
     settings_write_string(
         "General",
         "PTTSoundOff",
         state->pttSoundOff,
-        paths->iniPath
+        ini
     );
 
     settings_write_uint(
         "MicPlus",
         "IconMode",
         (UINT)state->iconMode,
-        paths->iniPath
+        ini
+    );
+
+    settings_write_bool(
+        "MicPlus",
+        "UseAudioIcon",
+        state->useAudioIcon,
+        ini
     );
 
     settings_write_uint(
         "MicPlus",
         "MenuTheme",
         (UINT)state->menuTheme,
-        paths->iniPath
+        ini
     );
 
-    settings_write_bool(
-        "General",
-        "HideTrayIcon",
-        state->hideTrayIcon,
-        paths->iniPath
+    settings_write_uint(
+        "MicPlus",
+        "LeftClickAction",
+        (UINT)state->leftClickAction,
+        ini
     );
 
-	settings_write_bool(
+    settings_write_uint(
+        "MicPlus",
+        "MiddleClickAction",
+        (UINT)state->middleClickAction,
+        ini
+    );
+
+    settings_write_uint(
+        "MicPlus",
+        "ScrollAction",
+        (UINT)state->scrollAction,
+        ini
+    );
+
+       settings_write_bool(
         "General",
-        "Muted",
-        state->muted,
-        paths->iniPath
+        "HideMicSelection",
+        state->hideMicSelection,
+        ini
     );
 }

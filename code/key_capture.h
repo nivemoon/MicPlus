@@ -26,7 +26,8 @@ BOOL key_capture_mic_hotkey(
 BOOL key_capture_ptt(
     HWND hWnd,
     APP_LANG language,
-    UINT *outVirtualKey
+    UINT *outVirtualKey,
+    BOOL *outDoubleClick
 );
 
 #endif

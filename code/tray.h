@@ -32,4 +32,10 @@ void tray_remove_icon(
     AppState *state
 );
 
+void tray_show_balloon(
+    AppState *state,
+    const char *title,
+    const char *text
+);
+
 #endif

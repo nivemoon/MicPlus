@@ -9,9 +9,12 @@ BOOL hooks_install(
     AppContext *context
 );
 
+void hooks_ptt_unlatch(void);
 void hooks_uninstall(
     AppContext *context
 );
+
+void hooks_set_voice_activation(int enabled);
 
 LRESULT CALLBACK hooks_mouse_proc(
     int nCode,

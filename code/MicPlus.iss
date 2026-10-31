@@ -1,5 +1,5 @@
 #define MyAppName "MicPlus"
-#define MyAppVersion "1.6.1"
+#define MyAppVersion "1.7"
 #define MyAppPublisher "Nivemoon Labs"
 #define MyAppExeName "MicPlus.exe"
 

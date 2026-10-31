@@ -10,8 +10,8 @@ BOOL paths_get_config_file(
     char *outPath,
     size_t bufferSize)
 {
-    char appData[MAX_PATH];
-    char folderPath[MAX_PATH];
+    char appData[1024];     // строки 13, 88, 116
+	char folderPath[1200];  // строка 14
 
     if (!outPath || bufferSize == 0) {
         return FALSE;
@@ -85,7 +85,7 @@ void paths_build_config_fallback(
 void paths_build_startup(
     AppPaths *paths)
 {
-    char appData[MAX_PATH];
+    char appData[1024];
 
     if (!paths) {
         return;
@@ -113,7 +113,7 @@ void paths_build_startup(
 void paths_build(
     AppPaths *paths)
 {
-    char appData[MAX_PATH];
+    char appData[1024];
     
     if (!paths) {
         return;
@@ -170,50 +170,4 @@ void paths_build(
     paths_build_startup(paths);
 }
 
-// ---------- Micctl ----------
 
-static BOOL g_micctlExtracted = FALSE;
-
-static BOOL ExtractResourceToFile(LPCSTR resourceName, LPCSTR fileName) {
-    HRSRC hRes = FindResourceA(NULL, resourceName, (LPCSTR)RT_RCDATA);  // <-- Привести к LPCSTR
-    if (!hRes) return FALSE;
-    
-    HGLOBAL hGlob = LoadResource(NULL, hRes);
-    if (!hGlob) return FALSE;
-    
-    DWORD size = SizeofResource(NULL, hRes);
-    if (size == 0) return FALSE;
-    
-    LPVOID pData = LockResource(hGlob);
-    if (!pData) return FALSE;
-    
-    FILE* f = fopen(fileName, "wb");
-    if (!f) return FALSE;
-    
-    fwrite(pData, 1, size, f);
-    fclose(f);
-    
-    return TRUE;
-}
-
-void micctl_ensure(AppPaths *paths) {
-    if (g_micctlExtracted) {
-        MessageBoxA(NULL, "Уже извлечено (g_micctlExtracted=TRUE)", "MicPlus Debug", MB_OK);
-        return;
-    }
-    
-    if (GetFileAttributesA(paths->micctlPath) != INVALID_FILE_ATTRIBUTES) {
-        g_micctlExtracted = TRUE;
-        MessageBoxA(NULL, "Файл уже существует", "MicPlus Debug", MB_OK);
-        return;
-    }
-    
-    MessageBoxA(NULL, "Попытка извлечения...", "MicPlus Debug", MB_OK);
-    
-    if (ExtractResourceToFile("MICCTL_EXE", paths->micctlPath)) {
-        g_micctlExtracted = TRUE;
-        MessageBoxA(NULL, "Успешно извлечено!", "MicPlus Debug", MB_OK);
-    } else {
-        MessageBoxA(NULL, "ОШИБКА извлечения!", "MicPlus Debug", MB_OK);
-    }
-}

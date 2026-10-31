@@ -33,7 +33,7 @@ static BOOL startup_get_link_path(
 BOOL startup_is_enabled(
     const AppPaths *paths)
 {
-    char linkPath[MAX_PATH];
+    char linkPath[1320];
 
     if (!startup_get_link_path(
             paths,
@@ -50,9 +50,9 @@ BOOL startup_is_enabled(
 BOOL startup_create(
     const AppPaths *paths)
 {
-    char linkPath[MAX_PATH];
-    char exeDirectory[MAX_PATH];
-    WCHAR wideLinkPath[MAX_PATH];
+    char linkPath[1320];
+    char exeDirectory[600];
+    WCHAR wideLinkPath[1320];
 
     char *slash;
 
@@ -184,7 +184,7 @@ BOOL startup_create(
 void startup_remove(
     const AppPaths *paths)
 {
-    char linkPath[MAX_PATH];
+    char linkPath[1320];
 
     if (!startup_get_link_path(
             paths,

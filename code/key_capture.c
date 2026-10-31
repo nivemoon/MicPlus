@@ -243,7 +243,6 @@ BOOL key_capture_mic_hotkey(
         );
     } else {
         modifiers = key_capture_get_modifiers();
-		      
 
         if ((firstKey == VK_RETURN ||
              firstKey == VK_ESCAPE) &&
@@ -289,16 +288,20 @@ BOOL key_capture_mic_hotkey(
 BOOL key_capture_ptt(
     HWND hWnd,
     APP_LANG language,
-    UINT *outVirtualKey)
+    UINT *outVirtualKey,
+    BOOL *outDoubleClick)
 {
     MSG message;
     UINT virtualKey = 0;
     char keyName[64];
     char resultText[256];
+    int answer;
 
-    if (!outVirtualKey) {
+    if (!outVirtualKey || !outDoubleClick) {
         return FALSE;
     }
+
+    *outDoubleClick = FALSE;
 
     message_box_utf8(
         hWnd,
@@ -307,21 +310,38 @@ BOOL key_capture_ptt(
         MB_OK | MB_ICONINFORMATION
     );
 
-    while (GetMessageA(&message, NULL, 0, 0) > 0) {
-        if (message.message == WM_KEYDOWN ||
-            message.message == WM_SYSKEYDOWN) {
-            virtualKey = (UINT)message.wParam;
+   while (GetMessageA(&message, NULL, 0, 0) > 0) {
+    if (message.message == WM_KEYDOWN ||
+        message.message == WM_SYSKEYDOWN) {
+        virtualKey = (UINT)message.wParam;
 
-            if (virtualKey == VK_ESCAPE) {
-                return FALSE;
-            }
-
-            break;
+        if (virtualKey == VK_ESCAPE) {
+            return FALSE;
         }
 
-        TranslateMessage(&message);
-        DispatchMessageA(&message);
+        if (key_capture_is_modifier(virtualKey)) {
+            message_box_utf8(
+                hWnd,
+                language == LANG_RU
+                    ? "Эта клавиша — модификатор (Shift, Ctrl, Alt)\n"
+                      "и не может быть назначена для PTT.\n"
+                      "Выберите обычную клавишу."
+                    : "This key is a modifier (Shift, Ctrl, Alt)\n"
+                      "and cannot be assigned for PTT.\n"
+                      "Please choose a regular key.",
+                "MicPlus",
+                MB_OK | MB_ICONINFORMATION
+            );
+            virtualKey = 0;
+            continue;
+        }
+
+        break;
     }
+
+    TranslateMessage(&message);
+    DispatchMessageA(&message);
+}
 
     if (virtualKey == 0) {
         return FALSE;
@@ -339,20 +359,47 @@ BOOL key_capture_ptt(
         return FALSE;
     }
 
+    answer = message_box_utf8(
+        hWnd,
+        language == LANG_RU
+            ? "Использовать двойной клик вместо зажатия?"
+            : "Use double-click instead of holding?",
+        "MicPlus",
+        MB_YESNO | MB_ICONQUESTION
+    );
+
     *outVirtualKey = virtualKey;
+    *outDoubleClick = (answer == IDYES);
 
-    key_get_display_name(
-        virtualKey,
-        keyName,
-        sizeof(keyName)
-    );
+    if (*outDoubleClick) {
+        key_get_display_name(
+            virtualKey,
+            keyName,
+            sizeof(keyName)
+        );
 
-    snprintf(
-        resultText,
-        sizeof(resultText),
-        localization_get(language, "MSG_SELECTED_PTT"),
-        keyName
-    );
+        snprintf(
+            resultText,
+            sizeof(resultText),
+            language == LANG_RU
+                ? "Двойной клик: %s"
+                : "Double-click: %s",
+            keyName
+        );
+    } else {
+        key_get_display_name(
+            virtualKey,
+            keyName,
+            sizeof(keyName)
+        );
+
+        snprintf(
+            resultText,
+            sizeof(resultText),
+            localization_get(language, "MSG_SELECTED_PTT"),
+            keyName
+        );
+    }
 
     message_box_utf8(
         hWnd,

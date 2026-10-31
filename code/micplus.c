@@ -1,6 +1,7 @@
 #include <windows.h>
 
 #include "app.h"
+#include "micplus_ini.h"
 
 int WINAPI WinMain(
     HINSTANCE hInstance,

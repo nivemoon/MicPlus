@@ -1,14 +1,32 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "sounds.h"
-
+#include <stdlib.h>
 #include <mmsystem.h>
 #include <stdio.h>
 #include <string.h>
 
 #define SOUND_ALIAS "MICPLUS_SFX"
 
+static CRITICAL_SECTION g_soundLock;
+static BOOL g_soundLockInit = FALSE;
 static int sound_alias_open = 0;
+static char g_currentFile[MAX_PATH] = "";
+
+static void sound_init_lock(void)
+{
+    if (!g_soundLockInit) {
+        InitializeCriticalSection(&g_soundLock);
+        g_soundLockInit = TRUE;
+    }
+}
+
+const char *sounds_get_directory(const AppState *state)
+{
+    (void)state;
+
+    return "sounds";
+}
 
 void sounds_build_path(
     const char *exePath,
@@ -71,10 +89,11 @@ static void sound_close_alias(void)
         );
 
         sound_alias_open = 0;
+        g_currentFile[0] = '\0';
     }
 }
 
-BOOL sounds_play_file(
+static BOOL sounds_play_file_sync(
     const char *exePath,
     const char *soundsDirectory,
     const char *fileName,
@@ -84,97 +103,189 @@ BOOL sounds_play_file(
     char fullPath[MAX_PATH];
     char command[1024];
     int mciVolume;
+    BOOL result = FALSE;
+
+    EnterCriticalSection(&g_soundLock);
+
+    do {
+        if (!enabled || volume <= 0) {
+            break;
+        }
+
+        sounds_build_path(
+            exePath,
+            soundsDirectory,
+            fileName,
+            fullPath,
+            sizeof(fullPath)
+        );
+
+        if (!fullPath[0]) {
+            break;
+        }
+
+
+        /* Другой файл (или alias закрыт) — переоткрываем. */
+        sound_close_alias();
+
+        {
+            const char *deviceType;
+            const char *extension;
+
+            extension = strrchr(fullPath, '.');
+
+            if (extension &&
+                lstrcmpiA(extension, ".mp3") == 0) {
+                deviceType = "mpegvideo";
+            } else {
+                deviceType = "waveaudio";
+            }
+
+            snprintf(
+                command,
+                sizeof(command),
+                "open \"%s\" type %s alias " SOUND_ALIAS,
+                fullPath,
+                deviceType
+            );
+        }
+
+                {
+            MCIERROR err = mciSendStringA(command, NULL, 0, NULL);
+
+            if (err != 0) {
+                char dbg[2048];
+
+                snprintf(
+                    dbg,
+                    sizeof(dbg),
+                    "exe=[%s]\nfile=[%s]\nfull=[%s]",
+                    exePath ? exePath : "(null)",
+                    fileName ? fileName : "(null)",
+                    fullPath
+                );
+
+                MessageBoxA(NULL, dbg, "MCI OPEN FAIL", MB_OK);
+                break;
+            }
+        }
+
+        sound_alias_open = 1;
+        lstrcpynA(g_currentFile, fullPath, sizeof(g_currentFile));
+
+        if (volume > 100) {
+            volume = 100;
+        }
+
+        mciVolume = volume * 10;
+
+        snprintf(
+            command,
+            sizeof(command),
+            "setaudio " SOUND_ALIAS " volume to %d",
+            mciVolume
+        );
+
+        mciSendStringA(command, NULL, 0, NULL);
+
+        if (mciSendStringA(
+                "play " SOUND_ALIAS,
+                NULL,
+                0,
+                NULL) != 0) {
+            sound_close_alias();
+            break;
+        }
+
+        result = TRUE;
+    } while (0);
+
+    LeaveCriticalSection(&g_soundLock);
+    return result;
+}
+
+typedef struct {
+    char exePath[MAX_PATH];
+    char soundsDirectory[MAX_PATH];
+    char fileName[256];
+    int enabled;
+    int volume;
+} SoundPlayParams;
+
+static DWORD WINAPI sounds_play_thread(LPVOID param)
+{
+    SoundPlayParams *p = (SoundPlayParams *)param;
+
+    sounds_play_file_sync(
+        p->exePath,
+        p->soundsDirectory,
+        p->fileName,
+        p->enabled,
+        p->volume
+    );
+
+    free(p);
+
+    return 0;
+}
+
+BOOL sounds_play_file(
+    const char *exePath,
+    const char *soundsDirectory,
+    const char *fileName,
+    int enabled,
+    int volume)
+{
+    SoundPlayParams *p;
+    HANDLE thread;
+
+    sound_init_lock();
 
     if (!enabled || volume <= 0) {
         return FALSE;
     }
 
-    sounds_build_path(
-        exePath,
-        soundsDirectory,
-        fileName,
-        fullPath,
-        sizeof(fullPath)
-    );
+    p = (SoundPlayParams *)malloc(sizeof(SoundPlayParams));
 
-    if (!fullPath[0]) {
+    if (!p) {
         return FALSE;
     }
 
-    sound_close_alias();
+    strncpy(p->exePath, exePath ? exePath : "", MAX_PATH - 1);
+    p->exePath[MAX_PATH - 1] = '\0';
 
-    {
-    const char *deviceType;
-    const char *extension;
+    strncpy(
+        p->soundsDirectory,
+        soundsDirectory ? soundsDirectory : "",
+        MAX_PATH - 1
+    );
+    p->soundsDirectory[MAX_PATH - 1] = '\0';
 
-    extension = strrchr(fullPath, '.');
+    strncpy(
+        p->fileName,
+        fileName ? fileName : "",
+        sizeof(p->fileName) - 1
+    );
+    p->fileName[sizeof(p->fileName) - 1] = '\0';
 
-    if (extension &&
-        lstrcmpiA(extension, ".mp3") == 0) {
-        deviceType = "mpegvideo";
+    p->enabled = enabled;
+    p->volume = volume;
+
+    /* Не ждём предыдущий поток — просто отсоединяем его.
+       Доступ к MCI сериализуется критической секцией. */
+    thread = CreateThread(
+        NULL,
+        0,
+        sounds_play_thread,
+        p,
+        0,
+        NULL
+    );
+
+    if (thread) {
+        CloseHandle(thread);
     } else {
-        deviceType = "waveaudio";
-    }
-
-    snprintf(
-        command,
-        sizeof(command),
-        "open \"%s\" type %s alias " SOUND_ALIAS,
-        fullPath,
-        deviceType
-    );
-}
-
-    {
-    MCIERROR mciError;
-
-    mciError = mciSendStringA(command, NULL, 0, NULL);
-
-    if (mciError != 0) {
-        char errorText[256];
-
-        snprintf(
-            errorText,
-            sizeof(errorText),
-            "MCI open failed.\nPath:\n%s\nError code: %lu",
-            fullPath,
-            (unsigned long)mciError
-        );
-
-        MessageBoxA(
-            NULL,
-            errorText,
-            "MicPlus MCI error",
-            MB_OK | MB_ICONERROR
-        );
-
-        return FALSE;
-    }
-}
-
-    sound_alias_open = 1;
-
-    if (volume > 100) {
-        volume = 100;
-    }
-
-    mciVolume = volume * 10;
-
-    snprintf(
-        command,
-        sizeof(command),
-        "setaudio " SOUND_ALIAS " volume to %d",
-        mciVolume
-    );
-
-    mciSendStringA(command, NULL, 0, NULL);
-
-    if (mciSendStringA(
-            "play " SOUND_ALIAS,
-            NULL,
-            0,
-            NULL) != 0) {
-        sound_close_alias();
+        free(p);
         return FALSE;
     }
 
@@ -229,13 +340,21 @@ BOOL sounds_play_ptt_mode(
     );
 }
 
-const char *sounds_get_directory(
-    const AppState *state)
+BOOL sounds_play_volume_tick(
+    const char *exePath,
+    const char *soundsDir,
+    const char *fileName,
+    int enabled,
+    int volume)
 {
-    if (state &&
-        state->soundScheme == 1) {
-        return "sounds\\micplus";
-    }
+    (void)volume;
 
-    return "sounds\\classic";
+    /* Фиксированная громкость щелчка — всегда одинаково */
+    return sounds_play_file(
+        exePath,
+        soundsDir,
+        fileName,
+        enabled,
+        20
+    );
 }

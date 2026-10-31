@@ -39,7 +39,15 @@ BOOL sounds_play_ptt_mode(
 
 BOOL sounds_play_mic(
     const char *exePath,
-    const char *soundsDirectory,
+    const char *soundsDir,
+    const char *fileName,
+    int enabled,
+    int volume
+);
+
+BOOL sounds_play_volume_tick(
+    const char *exePath,
+    const char *soundsDir,
     const char *fileName,
     int enabled,
     int volume

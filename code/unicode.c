@@ -46,7 +46,7 @@ int utf8_to_wide(
     );
 }
 
-BOOL message_box_utf8(
+int message_box_utf8(
     HWND hWnd,
     const char *text,
     const char *caption,
@@ -59,14 +59,14 @@ BOOL message_box_utf8(
             text,
             wideText,
             ARRAYSIZE(wideText))) {
-        return FALSE;
+        return 0;
     }
 
     if (!utf8_to_wide(
             caption,
             wideCaption,
             ARRAYSIZE(wideCaption))) {
-        return FALSE;
+        return 0;
     }
 
     return MessageBoxW(
@@ -74,7 +74,7 @@ BOOL message_box_utf8(
         wideText,
         wideCaption,
         type
-    ) != 0;
+    );
 }
 
 BOOL menu_insert_utf8(

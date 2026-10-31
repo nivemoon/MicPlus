@@ -9,19 +9,31 @@
 #include "key_names.h"
 #include "resource.h"
 
+#include "switch_devices.h"
 #include <shellapi.h>
 #include <stdio.h>
+
+#include "audio_icons.h"
+#include "audio_device_type.h"
 
 static const char *tray_get_ptt_name(
     const AppState *state)
 {
-    static char pttName[64];
-
     if (!state) {
         return "";
     }
 
+    if (state->pttButton == 0 &&
+        state->vkPttCustom == 0) {
+        return localization_get(
+            state->lang,
+            "MENU_NO_HOTKEY"
+        );
+    }
+
     if (state->vkPttCustom != 0) {
+        static char pttName[64];
+
         key_get_display_name(
             state->vkPttCustom,
             pttName,
@@ -97,19 +109,18 @@ BOOL tray_load_icons(
     );
 
     if (!state->hIconOnLight) {
-    state->hIconOnLight = LoadIconA(NULL, (LPCSTR)IDI_APPLICATION);  
-}
+        state->hIconOnLight = LoadIconA(NULL, (LPCSTR)IDI_APPLICATION);
+    }
 
-if (!state->hIconOnDark) {
-    state->hIconOnDark =
-        state->hIconOnLight;
-}
+    if (!state->hIconOnDark) {
+        state->hIconOnDark = state->hIconOnLight;
+    }
 
-if (!state->hIconOffRed) {
-    state->hIconOffRed = LoadIconA(NULL, (LPCSTR)IDI_APPLICATION);  
-}
+    if (!state->hIconOffRed) {
+        state->hIconOffRed = LoadIconA(NULL, (LPCSTR)IDI_APPLICATION);
+    }
 
-    theme_update_icon(
+        theme_update_icon(
         &state->hIconOnCurrent,
         state->hIconOnLight,
         state->hIconOnDark,
@@ -126,8 +137,8 @@ void tray_update_tooltip(
     char micName[64];
     char soundName[64];
     char tooltip[256];
-	char chordName[128];
-const char *micHotkeyName;
+    char chordName[128];
+    const char *micHotkeyName;
 
     WCHAR wideTooltip[ARRAYSIZE(
         state->nid.szTip
@@ -141,27 +152,33 @@ const char *micHotkeyName;
         return;
     }
 
-    if (state->vkMicChordFirst != 0 &&
-    state->vkMicChordSecond != 0) {
+        if (state->vkMicChordFirst != 0 &&
+        state->vkMicChordSecond != 0) {
 
-    key_build_chord_name(
-        state->vkMicChordFirst,
-        state->vkMicChordSecond,
-        chordName,
-        sizeof(chordName)
-    );
+        key_build_chord_name(
+            state->vkMicChordFirst,
+            state->vkMicChordSecond,
+            chordName,
+            sizeof(chordName)
+        );
 
-    micHotkeyName = chordName;
-} else {
-    key_build_hotkey_name(
-        state->modToggle,
-        state->vkToggle,
-        micName,
-        sizeof(micName)
-    );
+        micHotkeyName = chordName;
+    } else if (state->vkToggle == 0) {
+       micHotkeyName = localization_get(
+            state->lang,
+            "MENU_NO_HOTKEY"
+        );
+		
+    } else {
+        key_build_hotkey_name(
+            state->modToggle,
+            state->vkToggle,
+            micName,
+            sizeof(micName)
+        );
 
-    micHotkeyName = micName;
-}
+        micHotkeyName = micName;
+    }
 
     key_build_hotkey_name(
         state->modSoundToggle,
@@ -185,11 +202,46 @@ const char *micHotkeyName;
         NIF_ICON |
         NIF_TIP;
 
-    state->nid.hIcon = state->muted
-        ? state->hIconOffRed
-        : state->hIconOnCurrent;
+               if (state->pttActive) {
+        HICON hPtt;
 
-        snprintf(
+        if (state->useAudioIcon) {
+            hPtt = audio_icon_load_ptt(
+                audio_device_type_detect()
+            );
+        } else {
+            hPtt = audio_icon_load_ptt_off();
+        }
+
+        if (hPtt) {
+            state->hIconAudio = hPtt;
+            state->nid.hIcon = hPtt;
+        } else {
+            state->nid.hIcon = state->hIconOffRed;
+        }
+    } else if (state->useAudioIcon) {
+        HICON hAudio = audio_icon_load(
+            audio_device_type_detect(),
+            !state->muted
+        );
+
+        if (hAudio) {
+            if (state->hIconAudio) {
+                DestroyIcon(state->hIconAudio);
+            }
+
+            state->hIconAudio = hAudio;
+            state->nid.hIcon = hAudio;
+        } else {
+            state->nid.hIcon = state->hIconOnCurrent;
+        }
+    } else {
+        state->nid.hIcon = state->muted
+            ? state->hIconOffRed
+            : state->hIconOnCurrent;
+    }
+
+    snprintf(
         tooltip,
         sizeof(tooltip),
         format,
@@ -242,7 +294,7 @@ void tray_show_mic_balloon(
         state->lang,
         muted
             ? "BALLOON_MIC_OFF_TITLE"
-            : "BALLOON_MIC_ON_TITLE"
+            : "BALLOON_MIC_ON_TEXT"
     );
 
     text = localization_get(
@@ -372,10 +424,7 @@ BOOL tray_add_icon(
         return FALSE;
     }
 
-    state->nid.hIcon =
-        state->muted
-            ? state->hIconOffRed
-            : state->hIconOnCurrent;
+    state->nid.hIcon = state->hIconOnCurrent;
 
     lstrcpynW(
         state->nid.szTip,
@@ -419,4 +468,55 @@ void tray_remove_icon(
 
     state->nid.hWnd =
         NULL;
+}
+
+void tray_show_balloon(
+    AppState *state,
+    const char *title,
+    const char *text)
+{
+    WCHAR wideTitle[ARRAYSIZE(state->nid.szInfoTitle)];
+    WCHAR wideText[ARRAYSIZE(state->nid.szInfo)];
+
+    if (!state ||
+        !state->nid.hWnd ||
+        !title ||
+        !text) {
+        return;
+    }
+
+    if (!tray_copy_utf8_to_wide(
+            title,
+            wideTitle,
+            ARRAYSIZE(wideTitle))) {
+        return;
+    }
+
+    if (!tray_copy_utf8_to_wide(
+            text,
+            wideText,
+            ARRAYSIZE(wideText))) {
+        return;
+    }
+
+    state->nid.uFlags = NIF_INFO;
+
+    lstrcpynW(
+        state->nid.szInfoTitle,
+        wideTitle,
+        ARRAYSIZE(state->nid.szInfoTitle)
+    );
+
+    lstrcpynW(
+        state->nid.szInfo,
+        wideText,
+        ARRAYSIZE(state->nid.szInfo)
+    );
+
+    state->nid.dwInfoFlags = NIIF_INFO;
+
+    Shell_NotifyIconW(
+        NIM_MODIFY,
+        &state->nid
+    );
 }

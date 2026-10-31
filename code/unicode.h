@@ -9,7 +9,7 @@ int utf8_to_wide(
     int destinationCount
 );
 
-BOOL message_box_utf8(
+int message_box_utf8(
     HWND hWnd,
     const char *text,
     const char *caption,

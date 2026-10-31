@@ -1,4 +1,4 @@
-﻿#include "localization.h"
+#include "localization.h"
 
 #include <windows.h>
 
@@ -21,7 +21,7 @@ const char *localization_get(
             return "Глобальный звук";
 
         if (lstrcmpA(id, "MENU_HOTKEYS") == 0)
-            return "Сочетания клавиш";
+            return "Горячие клавиши";
 
         if (lstrcmpA(id, "MENU_SETTINGS") == 0)
             return "Настройки";
@@ -48,16 +48,16 @@ const char *localization_get(
             return "Выход";
 
         if (lstrcmpA(id, "MENU_PTT_BUTTON") == 0)
-            return "Кнопка Рации (РТТ)";
+            return "Клавиши рации (РТТ)";
 
         if (lstrcmpA(id, "MENU_MIC_BUTTON") == 0)
-            return "Кнопка микрофона";
+            return "Клавиша микрофона";
 
         if (lstrcmpA(id, "MENU_PTT_CUSTOM") == 0)
-            return "Кнопка РТТ: Назначить...";
+            return "Назначить...";
 
         if (lstrcmpA(id, "MENU_MIC_CUSTOM") == 0)
-            return "Микрофон: Назначить...";
+            return "Назначить...";
 
         if (lstrcmpA(id, "MENU_PASSIVE_CUSTOM") == 0)
             return "Двойной клик: Назначить...";
@@ -75,7 +75,7 @@ const char *localization_get(
             return "Тильда (~)";
 
         if (lstrcmpA(id, "MENU_ICON_COLOR") == 0)
-            return "Цвет значка MicPlus";
+            return "Цвет значка";
 
         if (lstrcmpA(id, "ICON_AUTO") == 0)
             return "Система";
@@ -123,12 +123,15 @@ const char *localization_get(
 
         if (lstrcmpA(id, "MSG_ERR_HOTKEY") == 0)
             return "Не удалось зарегистрировать горячую клавишу.";
+		
+		if (lstrcmpA(id, "MENU_NO_HOTKEY") == 0)
+            return "без хоткея";
 
         if (lstrcmpA(id, "TOOLTIP_FORMAT_ON") == 0)
-            return "MicPlus: PTT %s, Микрофон %s, Звук %s";
+            return "Рация %s, Микрофон %s";
 
         if (lstrcmpA(id, "TOOLTIP_FORMAT_OFF") == 0)
-            return "MicPlus: PTT %s, Микрофон %s, Звук %s";
+            return "Рация %s, Микрофон %s";
 
         if (lstrcmpA(id, "BALLOON_MIC_ON_TITLE") == 0)
             return "MicPlus";
@@ -160,6 +163,43 @@ const char *localization_get(
         if (lstrcmpA(id, "MSG_PTT_MODE_SELECT_TEXT") == 0)
             return "Закройте это окно, затем нажмите нужное сочетание.\n"
                    "ESC отменяет выбор и оставляет текущее сочетание без изменений.";
+				   
+        if (lstrcmpA(id, "MENU_AUDIO_ICON") == 0)
+            return "Альтернативная иконка";
+
+        if (lstrcmpA(id, "MENU_AUDIO_DEVICES") == 0)
+            return "Аудиоустройства";
+
+        if (lstrcmpA(id, "MENU_DEVICE_OUTPUT") == 0)
+            return "Вывод";
+
+        if (lstrcmpA(id, "MENU_DEVICE_INPUT") == 0)
+            return "Ввод";
+
+        if (lstrcmpA(id, "MENU_LEFT_CLICK") == 0)
+            return "Левая кнопка";
+
+        if (lstrcmpA(id, "MENU_MIDDLE_CLICK") == 0)
+            return "Средняя кнопка";
+
+        if (lstrcmpA(id, "MENU_SCROLL") == 0)
+            return "Колесо мыши";
+
+        if (lstrcmpA(id, "MENU_ACTION_PANEL") == 0)
+            return "Панель MicPlus";
+
+        if (lstrcmpA(id, "MENU_ACTION_MENU") == 0)
+            return "Меню";
+
+        if (lstrcmpA(id, "MENU_ACTION_NONE") == 0)
+            return "Ничего";
+
+        if (lstrcmpA(id, "MENU_ACTION_VOLUME") == 0)
+            return "Громкость системы";
+
+        if (lstrcmpA(id, "MENU_ACTION_MIC") == 0)
+            return "Микрофон";
+			
     }
 
     if (language == LANG_EN) {
@@ -276,11 +316,14 @@ const char *localization_get(
         if (lstrcmpA(id, "MSG_ERR_HOTKEY") == 0)
             return "Failed to register hotkey.";
 
+		if (lstrcmpA(id, "MENU_NO_HOTKEY") == 0)
+            return "without hotkey";
+
         if (lstrcmpA(id, "TOOLTIP_FORMAT_ON") == 0)
-            return "MicPlus: PTT %s, Microphone %s, Sound %s";
+            return "MicPlus: PTT %s, Microphone %s";
 
         if (lstrcmpA(id, "TOOLTIP_FORMAT_OFF") == 0)
-            return "MicPlus: PTT %s, Microphone %s, Sound %s";
+            return "MicPlus: PTT %s, Microphone %s";
 
         if (lstrcmpA(id, "BALLOON_MIC_ON_TITLE") == 0)
             return "MicPlus";
@@ -312,6 +355,43 @@ const char *localization_get(
         if (lstrcmpA(id, "MSG_PTT_MODE_SELECT_TEXT") == 0)
             return "Close this window, then press the desired hotkey.\n"
                    "ESC cancels and keeps the current hotkey unchanged.";
+				   
+        if (lstrcmpA(id, "MENU_AUDIO_ICON") == 0)
+            return "Alternative icon";
+
+        if (lstrcmpA(id, "MENU_AUDIO_DEVICES") == 0)
+            return "Audio devices";
+
+        if (lstrcmpA(id, "MENU_DEVICE_OUTPUT") == 0)
+            return "Output";
+
+        if (lstrcmpA(id, "MENU_DEVICE_INPUT") == 0)
+            return "Input";
+
+        if (lstrcmpA(id, "MENU_LEFT_CLICK") == 0)
+            return "Left click";
+
+        if (lstrcmpA(id, "MENU_MIDDLE_CLICK") == 0)
+            return "Middle click";
+
+        if (lstrcmpA(id, "MENU_SCROLL") == 0)
+            return "Mouse wheel";
+
+        if (lstrcmpA(id, "MENU_ACTION_PANEL") == 0)
+            return "MicPlus panel";
+
+        if (lstrcmpA(id, "MENU_ACTION_MENU") == 0)
+            return "Menu";
+
+        if (lstrcmpA(id, "MENU_ACTION_NONE") == 0)
+            return "Nothing";
+
+        if (lstrcmpA(id, "MENU_ACTION_VOLUME") == 0)
+            return "System volume";
+
+        if (lstrcmpA(id, "MENU_ACTION_MIC") == 0)
+            return "Microphone";
+				   
     }
 
     return id;

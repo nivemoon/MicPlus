@@ -14,6 +14,7 @@ typedef enum {
 } PassivePttAction;
 
 void passive_ptt_start_capture(HWND owner);
+void passive_ptt_set_double_vk(UINT virtualKey);
 
 PassivePttAction passive_ptt_process_key(
     const KBDLLHOOKSTRUCT *key,
@@ -25,7 +26,6 @@ BOOL passive_ptt_is_capturing(void);
 BOOL passive_ptt_is_enabled(void);
 UINT passive_ptt_get_double_vk(void);
 void passive_ptt_clear(void);
-
 void passive_ptt_load(void);
 void passive_ptt_save(void);
 

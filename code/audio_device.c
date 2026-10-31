@@ -1,4 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
+#define COBJMACROS
 
 #include "audio_device.h"
 #include <initguid.h>
