@@ -18,7 +18,7 @@
 ### 📥 Прямые ссылки
 
 - [**MicPlus-Setup-1.7.exe**](https://github.com/nivemoon/MicPlus/releases/download/1.7.0/MicPlus-Setup-1.7.0.exe) — установочная версия
-- [**MicPlus_1.7_Portable.zip**](https://github.com/nivemoon/MicPlus/releases/download/1.7.0/MicPlus-1.7.0-Portable.zip) — портативная версия
+- [**MicPlus_1.7_Portable.zip**](https://github.com/nivemoon/MicPlus/releases/download/1.7.0/MicPlus-Portable-1.7.0.zip) — портативная версия
 
 <details>
 <summary>🔧 Самостоятельная сборка из исходников</summary>
