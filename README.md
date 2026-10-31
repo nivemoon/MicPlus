@@ -1,35 +1,36 @@
 # MicPlus
 
-Утилита для управления микрофоном в Windows с поддержкой push-to-talk (PTT).
+Утилита для управления микрофоном, аудиоустройствами и звуком в Windows.
 
-- **Режим рации (push-to-talk) и переключения микрофона назначаемыми клавишами**
-- **Глобальные хуки** — кнопки PTT и микрофона ловят нажатия во всех приложениях
+- **Микрофон**: включение / выключение, push-to-talk, голосовая активация
+- **Аудиоустройства**: быстрый выбор и переключение входа и выхода
+- **Глобальные хоткеи**: работают в играх и других приложениях
+- **Аварийное отключение**: мгновенно выключает микрофон, режим PTT и голосовую активацию
+      
+<img width="261" height="139" alt="N2JIWRLJAs" src="https://github.com/user-attachments/assets/b85e04c0-8569-4528-bc7b-2a36bcf2eb43" />
+<img width="223" height="219" alt="lNGCOOmSgX" src="https://github.com/user-attachments/assets/e005254d-593c-4ba9-a924-d3027ddafd5c" />
+<img width="309" height="146" alt="Q0hwW1HGHA" src="https://github.com/user-attachments/assets/8405d6d1-6bf9-4476-b617-e6b987e1c01a" />
 
-<img width="223" height="132" alt="tLUXOGprNZ" src="https://github.com/user-attachments/assets/bced0d4a-479d-4e3e-bc39-bcbf87eba2b1" />
-<img width="252" height="146" alt="DQD153VS5F" src="https://github.com/user-attachments/assets/047613f9-6cbc-4e08-aead-5763780117e1" />
-<img width="199" height="132" alt="VnrID1fTO5" src="https://github.com/user-attachments/assets/a50facb0-2e26-4580-84e4-b963f988a8c7" />
+> Скриншоты (здесь и далее) сделаны в Windows 10. В Windows 11 используется современный визуал.  
+> Работа всех функций в более старых версиях Windows не гарантируется.
 
-
-> English description is available somewhere down below.
-
-💡 **Нужен только PTT для мыши?** Посмотрите [**PTT-FFN**](https://github.com/nivemoon/PPT-FFN) — лёгкая утилита только для режима рации.
-
-## Установка
+💡 [**PTT-FFN**](https://github.com/nivemoon/PPT-FFN) — лёгкая утилита для рации боковыми кнопками мыши. Подходит, если нужны только PTT-функции.
 
 ### 📥 Прямые ссылки
 
-- [**MicPlus-Setup-1.6.1.exe**](https://github.com/nivemoon/micplus/releases/download/1.6.1/MicPlus-Setup-1.6.1.exe) — установочная версия 
-- [**MicPlus_1.6.1_Portable.zip**](https://github.com/nivemoon/micplus/releases/download/1.6.1/MicPlus_1.6.1_Portable.zip) — портативная версия 
+- [**MicPlus-Setup-1.7.exe**](https://github.com/nivemoon/MicPlus/releases/download/1.7/MicPlus-Setup-1.7.exe) — установочная версия
+- [**MicPlus_1.7_Portable.zip**](https://github.com/nivemoon/MicPlus/releases/download/1.7/MicPlus_1.7_Portable.zip) — портативная версия
 
 ### Портативная версия
-1. Скачать архив выше или из [Releases](https://github.com/nivemoon/micplus/releases)
-2. Распаковать в любую папку
-3. Запустить `MicPlus.exe`
+
+1. Скачайте архив выше или из [Releases](https://github.com/nivemoon/MicPlus/releases).
+2. Распакуйте в любую папку.
+3. Запустите `MicPlus.exe`.
 
 ### Установочная версия
-1. Скачать установщик выше или из [Releases](https://github.com/nivemoon/micplus/releases)
-2. Запустить и следовать инструкциям мастера установки
 
+1. Скачайте установщик выше или из [Releases](https://github.com/nivemoon/MicPlus/releases).
+2. Запустите его и следуйте инструкциям мастера установки.
 <details>
 <summary>🔧 Самостоятельная сборка из исходников</summary>
 
@@ -40,104 +41,90 @@ windres -i res.rc -o res.o
 gcc -o MicPlus.exe *.c res.o -mwindows -lwinhttp -lwinmm -luuid -lcomctl32 -lole32 -lcomdlg32 -DUNICODE -D_UNICODE
 ```
 
-Или используйте `Makefile`:
+Или `Makefile`:
 
 ```bat
 mingw32-make
 ```
 </details>
 
-<img width="527" height="420" alt="MicPlus_J5K129iety" src="https://github.com/user-attachments/assets/7754ab8d-ce36-44b8-ba85-f73000742215" />
+<img width="527" height="420" alt="изображение" src="https://github.com/user-attachments/assets/e620857c-b36c-4145-a065-edd343941226" />
 
-## ✅ Что нового в v1.6
+Полная история изменений — в [CHANGELOG.md](CHANGELOG.md).
 
-- **Синхронизация с системой** — утилита читает фактическое состояние микрофона через `IAudioEndpointVolume` и синхронизирует свой переключатель с ним
-- **Новая система звуков** — звуки, регулятор громкости и звуковые схемы
-- **Низкоуровневые хуки** — новый механизм обработки, заметно меньше отставаний при высокой нагрузке процессора/видеокарты
-- **Убран Win из доступных модификаторов** — слишком чувствительная и важная кнопка для системы
-- **Ускорение запуска** — оптимизирован запуск `micctl.exe`
-- **Режим PTT и Быстрый PTT** — новые режимы работы микрофона
-- **Комбинация из двух клавиш** — новое сочетание клавиш для активации (Микрофон и Режим PTT)
-- **Новый дизайн** — обновлённое оформление интерфейса (рация, громкость)
-- **Исправление правого Alt (РУС)** — полное равноправие между альтами
-- **Механизм «проверки» звука в системе** — Ctrl + Alt + Shift + (???). Каркас стелс плеера.
+## Что нового в v1.7
 
-## ✅ Фикс v1.6.1
-
-- **Кириллица** устранена при выборе сочетаний, в окнах подтверждения и в меню для правильного отображения без кривой кодировки.
-- **Быстрый РТТ** - клавиша двойного клика боьше не активирует рацию при удержании. 
-
-<details>
-  
-<summary>📜 Изменения прошлых версий</summary>
-
-### v1.5 — 2026-09-24
-- 🔧 Модульная структура проекта (1 файл → 17 модулей)
-- 🆕 Встроенный updater для проверки обновлений
-- 🆕 Возможность удаления настроек через меню "О программе"
-- 🆕 Опция скрытия иконки из трея (сочетание `Ctrl+Alt+Shift+M`)
-- 🐛 Исправления и улучшения
-- Раздельные варианты: портативная и установочная версии (Inno Setup Compiler)
-
-### v1.4
-- Добавлены низкоуровневые хуки — ускорена скорость срабатывания, добавлена поддержка игр (League of Legends, PUBG, Throne and Liberty и др.)
-- Перестроен функционал выбора и назначения клавиш — теперь можно выбрать одну клавишу для обоих режимов
-- Управление звуком упрощено до комбинации `Ctrl+F9`
-- Исправлено отображение в диспетчере задач — иконка меняется вместе с иконкой в трее
-
-### v1.33_afix
-- Изменён механизм автозагрузки — теперь используется безопасный метод создания/удаления ярлыка в папку автозагрузок (`%userprofile%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`)
-- Исправлена ложная индикация при автозапуске с системой
-
-### v1.3
-- Переписаны названия меню и строк интерфейса
-- Добавлено: автозапуск с системой, звуковые индикаторы, системные уведомления
-- Новые иконки: чёрная, белая, красная (при отключенном микрофоне)
-- Автоопределение цветовой темы Windows + ручное переключение
-
-</details>
+- **Голосовая активация** — микрофон включается от голоса и выключается после паузы; быстрое включение и выключение сочетанием `V+U`
+- **Аварийное отключение** — `Ctrl+Alt+F10` мгновенно выключает микрофон, режим PTT и голосовую активацию
+- **Управление аудиоустройствами** — быстрый выбор, переключение и переименование устройств ввода и вывода
+- **Bluetooth: без спящего режима** — помогает наушникам не уходить в сон и уменьшает задержку перед началом звука
+- **Обновлённая звуковая система** — удалена схема «Classic» со звуками Discord (распространение в стороннем приложении не разрешено лицензией Discord). Оставлен один набор свободно распространяемых звуков; любой сигнал можно заменить своим через настройки
+- **Новое хранение настроек** — файлы `micplus.ini` и `aliases.ini` создаются рядом с `MicPlus.exe`; если это невозможно, например в `Program Files`, они сохраняются в `AppData`. Работает для портативной и установочной версий
+- **Уменьшен размер программы** — примерно в 10 раз, за счёт удаления тестовых аудиофайлов
+- **Возможность отключения всех хоткеев**
+- **Обновлённые меню и настройки**
 
 ## Подробнее о программе
 
-### Режим РТТ (push-to-talk)
-- Активируемое состояние, при котором функционирует кнопка вызова рации. Включен по умолчанию.
+### Режим PTT (push-to-talk / рация)
 
-**Кнопка Рации**
-- Выбор из боковых кнопок мыши и тильды
-- По умолчанию: нижняя боковая кнопка мыши (MB5)
-- Допустимо назначение любой клавиши
+При удержании назначенной кнопки микрофон включается, при отпускании — выключается.
+
+- Активируемый режим, в котором работает кнопка рации. Голосовая активация доступна только в этом режиме.
+- Переназначение: **Горячие клавиши → Клавиши рации (PTT) → Режим PTT**
+- Голосовая активация не отключает клавиши рации.
+
+<img width="214" height="227" alt="Голосовая активация" src="https://github.com/user-attachments/assets/cffef5ec-1aa4-4f05-9e55-012fd5bdf2e0" />
+
+> Голосовой режим позволяет настроить условия срабатывания под себя.
+
+### Кнопка рации
+
+- Выбор боковых кнопок мыши. Используется особый механизм: другие действия этих кнопок игнорируются.
+- По умолчанию — нижняя боковая кнопка мыши. В некоторых мышах кнопки 4 и 5 могут меняться местами.
+- Можно назначить любую клавишу. После выбора клавиши доступен вариант активации двойным нажатием вместо удержания.
 
 ### Состояние микрофона
-- Выбор из F9, F10, тильды или любой другой клавиши
-- Назначение: клавиша, две клавиши или сочетание с модификатором (Ctrl/Alt/Shift)
-- По умолчанию: F10
 
-### Быстрый РТТ (он же Пассивный РТТ)
-- Активируемое состояние, в котором допустимо выбрать двойной клик клавиши для активации РТТ (держать их при этом не надо). Аналогичен по функционалу переключателю микрофона, но требует Режим РТТ (и использует соответствующие сигналы). Выключен по умолчанию.
+Включение и отключение микрофона работает независимо от режима PTT.
 
-### Индикаторы
-- Иконка в трее (красный значок при выключенном микрофоне)
-- Звуковые сигналы для обоих режимов
-- Системные уведомления
-- Отдельные иконки для светлой и тёмной темы Windows
+- По умолчанию: `F10`
+- Можно назначить одну клавишу, две клавиши или сочетание с `Ctrl` / `Alt` / `Shift`.
+
+### Аудиоустройства
+
+<img width="260" height="224" alt="Аудиоустройства" src="https://github.com/user-attachments/assets/50df2b9c-b0ba-4a53-8b21-a5fad158b795" />
+<img width="256" height="97" alt="Быстрый выбор устройств" src="https://github.com/user-attachments/assets/1c726554-3a01-4d88-bde0-7872b105a279" />
+<img width="309" height="73" alt="Хоткеи устройств" src="https://github.com/user-attachments/assets/1932dc68-f59b-45aa-a268-c62e53a24995" />
+
+> Примечание: тройной модификатор `Ctrl+Alt+Shift+%символ%` отображается только как `%символ%`, чтобы не растягивать окно.
+
+MicPlus определяет подключённые устройства и позволяет переключать их на лету.
+
+- Можно назначить собственные хоткеи для устройств.
+- Устройства можно переименовать; названия сохраняются в `aliases.ini`.
+- Микрофоны можно скрыть из быстрого переключателя устройств.
+- Здесь же находится параметр «Bluetooth: без спящего режима».
+
+### Индикаторы и особенности
+
+- Отдельные значки для светлой и тёмной темы Windows.
+- Альтернативная иконка: вместо значка MicPlus можно показывать текущее аудиоустройство — наушники, динамики или TWS. Для каждого состояния предусмотрены свои значки.
+- Звуковые сигналы и регулировка их громкости. 
+- Все горячие клавиши можно отключить, кроме голосовой активации `V+U`.
+- Системные уведомления и автозагрузка с системой.
+- Включение / выключение системного звука и возможность полностью скрыть значок в трее (подсказка — в окне «О программе»).
+- Проверка обновлений и сброс настроек через меню «О программе». Настройки ищутся рядом с программой и в папке AppData.
+- Настройка действий для значка в трее:
+  - **Левый клик**: быстрый выбор аудиоустройств, главное меню или без действия.
+  - **Колесо мыши**: микрофон вкл/выкл, панель аудиоустройств или без действия.
+
+> Примечание: назначение действия на колесо мыши доступно только в Windows 10. В Windows 11 колесо повторяет действие левого клика.
 
 ### Настройки
-- Сохранение в `micplus.ini` (`%USER%\AppData\Roaming\MicPlus`)
-- Два языка интерфейса: **русский / английский**
 
-## Использование
-
-**Правый клик по иконке в трее (в скобках указаны значения по умолчанию):**
-- Кнопка вызова рации РТТ (MB5)
-- Включение режима PTT (Alt + P)
-- Включение микрофона (F10)
-- Сочетения клавиш
-- Настройки 
-- О программе (обновления и удаление файла ini)
-
-> **Режим PTT (push-to-talk / рация):** при зажатой кнопке микрофон включается, при отпускании — выключается.
-> 
-> **Включение/отключение микрофона** работает независимо от режима PTT. Кнопка рации активирует РТТ и автоматически выключает микрофон после отпускания. 
+- Сохранение в `micplus.ini` и `aliases.ini`.
+- Два языка интерфейса: русский и английский.
 
 ## Лицензия
 
@@ -145,43 +132,34 @@ mingw32-make
 
 ---
 
-## English summary
+---
 
-**MicPlus** is a small Windows tray utility that gives you global control over your microphone: **mute / unmute / push-to-talk (PTT)**.
+## English
 
-It consists of two parts:
-
-- `micplus.exe` — tray app with an icon, PTT mode and global hotkeys.
-- `micctl.exe` — console helper that directly toggles the microphone state.
+**MicPlus** is a Windows tray utility for microphone, audio device and sound control.
 
 ### Features
 
-- **Push-to-talk (PTT)**:
-  - mouse side button (MB5)
-  - any keyboard key
-- **Toggle hotkey**:
-  - F10 by default
-  - any custom combination (key or Ctrl/Alt/Shift + key)
-- **Sound toggle**:
-  - `Ctrl+F9` by default
-  - any custom combination
-- **Tray icon** indicates microphone state:
-  - separate icons for mic on / mic off / dark & light themes
-- Settings saved to `micplus.ini` (hotkeys, language, PTT mode)
-- UI languages: **Russian / English**
-- **HideTrayIcon** option to hide tray icon (`Ctrl+Alt+Shift+M`)
-- **Built-in updater** for checking updates
+- Microphone mute / unmute, push-to-talk and quick PTT
+- Voice activation with `V+U` toggle
+- Emergency off with `Ctrl+Alt+F10`
+- Audio device selection, switching and renaming
+- Bluetooth no-standby mode
+- Global hotkeys that work in games and other applications
+- Tray icon with light and dark theme support
+- Multimedia panel and configurable mouse button actions
+- Russian and English interface
 
 ### Installation
 
-1. Download the latest release from [Releases](https://github.com/nivemoon/micplus/releases).
-2. Put `micplus.exe` and `micctl.exe` into the same folder.
-3. Run `micplus.exe` — a MicPlus icon will appear in the system tray.
-4. Configure hotkeys and PTT mode from the tray context menu.
+Download MicPlus 1.7 from [Releases](https://github.com/nivemoon/MicPlus/releases).
+
+- **Portable:** extract the archive and run `MicPlus.exe`
+- **Installer:** run the setup file and follow the instructions
 
 ### Build
 
-See the Russian section above for a MinGW / gcc build example.
+See the Russian section above for MinGW-w64 build instructions.
 
 ---
 
