@@ -6,9 +6,8 @@
 - **Аудиоустройства**: быстрый выбор и переключение входа и выхода
 - **Глобальные хоткеи**: работают в играх и других приложениях
 - **Аварийное отключение**: мгновенно выключает микрофон, режим PTT и голосовую активацию
-      
+<img width="223" height="219" alt="lNGCOOmSgX" src="https://github.com/user-attachments/assets/e005254d-593c-4ba9-a924-d3027ddafd5c" />     
 <img width="261" height="139" alt="N2JIWRLJAs" src="https://github.com/user-attachments/assets/b85e04c0-8569-4528-bc7b-2a36bcf2eb43" />
-<img width="223" height="219" alt="lNGCOOmSgX" src="https://github.com/user-attachments/assets/e005254d-593c-4ba9-a924-d3027ddafd5c" />
 <img width="309" height="146" alt="Q0hwW1HGHA" src="https://github.com/user-attachments/assets/8405d6d1-6bf9-4476-b617-e6b987e1c01a" />
 
 > Скриншоты (здесь и далее) сделаны в Windows 10. В Windows 11 используется современный визуал.  
@@ -40,8 +39,6 @@ mingw32-make
 
 <img width="527" height="420" alt="изображение" src="https://github.com/user-attachments/assets/e620857c-b36c-4145-a065-edd343941226" />
 
-Полная история изменений — в [CHANGELOG.md](CHANGELOG.md).
-
 ## Что нового в v1.7
 
 - **Голосовая активация** — микрофон включается от голоса и выключается после паузы; быстрое включение и выключение сочетанием `V+U`
@@ -53,6 +50,8 @@ mingw32-make
 - **Уменьшен размер программы** — примерно в 10 раз, за счёт удаления тестовых аудиофайлов
 - **Возможность отключения всех хоткеев**
 - **Обновлённые меню и настройки**
+
+[Полная история изменений](CHANGELOG.md).
 
 ## Подробнее о программе
 
