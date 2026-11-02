@@ -15,6 +15,16 @@
 
 💡 [**PTT-FFN**](https://github.com/nivemoon/PPT-FFN) — лёгкая утилита для рации боковыми кнопками мыши. Подходит, если нужны только PTT-функции.
 
+## Установка
+
+### Scoop
+```powershell
+scoop install micplus
+```
+
+### winget
+> Пакет находится на одобрении в winget-pkgs — скоро будет доступен.
+
 ### 📥 Прямые ссылки
 
 - [**MicPlus-Setup-1.7.exe**](https://github.com/nivemoon/MicPlus/releases/download/1.7.0/MicPlus-Setup-1.7.0.exe) — установочная версия
